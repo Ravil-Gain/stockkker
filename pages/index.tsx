@@ -1,7 +1,19 @@
 import Diagram from "@/components/Diagram";
 import { ChartData } from "chart.js/auto";
+import api from "../woocommerce/woocommerce";
+import { useEffect } from "react";
 
 export default function Home() {
+  useEffect(() => {
+    const p = api
+      .get("products", {
+        per_page: 50, // 50 products per page
+      })
+      .then((value) => {
+        console.log(value);
+      });
+  }, []);
+
   const data: ChartData = {
     labels: [
       "Hurmaa",
@@ -38,8 +50,8 @@ export default function Home() {
           bottomLeft: 3,
           topLeft: 3,
           topRight: 3,
-          bottomRight: 3
-      },
+          bottomRight: 3,
+        },
       },
       {
         label: "Government",
@@ -53,8 +65,8 @@ export default function Home() {
           bottomLeft: 3,
           topLeft: 3,
           topRight: 3,
-          bottomRight: 3
-      },
+          bottomRight: 3,
+        },
       },
     ],
   };
