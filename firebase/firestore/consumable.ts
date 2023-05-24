@@ -1,9 +1,6 @@
-// import { Timestamp } from "firebase/firestore";
-
-export interface ListDocument {
+export interface IConsumable {
   id: string;
   name: string;
-  userId: string;
-//   created: Timestamp;
-  products: string[];
+  description:string;
+  amount:number;
 }

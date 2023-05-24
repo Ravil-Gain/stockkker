@@ -1,17 +1,17 @@
 import Diagram from "@/components/Diagram";
 import { ChartData } from "chart.js/auto";
-import api from "../woocommerce/woocommerce";
-import { useEffect } from "react";
+import wooCommerce from "../woocommerce/woocommerce";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [products, setProducts] = useState(null);
+  const [isLoading, setLoading] = useState(true);
+
   useEffect(() => {
-    const p = api
-      .get("products", {
-        per_page: 50, // 50 products per page
-      })
-      .then((value) => {
-        console.log(value);
-      });
+    wooCommerce.get("products", { per_page: 50 }).then((data) => {
+      setProducts(data.data);
+      setLoading(false);
+    });
   }, []);
 
   const data: ChartData = {
@@ -76,12 +76,16 @@ export default function Home() {
       <h1 className="mx-auto mt-10 text-xl font-semibold capitalize ">
         line Chart
       </h1>
-      <div className="overflow-x-scroll">
-        <div className="relative">
-          <Diagram data={data} />
+      {isLoading ? (
+        <p>Loading</p>
+      ) : (
+        <div className="overflow-x-scroll">
+          <div className="relative">
+            <Diagram data={data} />
+          </div>
+          {/* <canvas id="myChartAxis" height="300" width="0"></canvas> */}
         </div>
-        {/* <canvas id="myChartAxis" height="300" width="0"></canvas> */}
-      </div>
+      )}
     </>
   );
 }
