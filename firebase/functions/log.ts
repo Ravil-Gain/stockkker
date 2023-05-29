@@ -1,23 +1,23 @@
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  QueryDocumentSnapshot,
+  setDoc,
+} from "firebase/firestore";
 import { database } from "../config";
+import { ILog } from "../firestore/log";
 
-export async function createLog(
-  type: string,
-  userUid: string,
-  desc: string,
-  orders: string[],
-  relatedProducts: string[],
-  relatedConsumables: string[]
-) {
+const logsCollection = collection(database, "logs").withConverter({
+  toFirestore: (data: ILog) => data,
+  fromFirestore: (snap: QueryDocumentSnapshot) => snap.data() as ILog,
+});
+
+export async function createLog(log: ILog) {
   try {
-    const docRef = await addDoc(collection(database, "logs"), {
-      type: type,
-      desc: desc,
-      userId: userUid,
-      timeStamp: Timestamp.now(),
-      orders: orders,
-      relatedProducts: relatedProducts,
-      relatedConsumables: relatedConsumables,
+    const docRef = doc(logsCollection, log.id);
+    await setDoc(docRef, {
+      ...log,
+      id: docRef.id,
     });
     console.log("Log written with ID: ", docRef.id);
   } catch (e) {

@@ -1,7 +1,8 @@
-export interface log {
+export interface ILog {
   id: string;
+  type: 'log' | 'error';
   desc: string;
-  userId: string;
+  userUid: string;
   orders: string[];
   timeStamp: Date;
   relatedProducts: string[];

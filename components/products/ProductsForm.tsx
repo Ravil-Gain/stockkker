@@ -1,250 +1,406 @@
 import { useState } from "react";
-import { createProduct } from "@/firebase/functions/product";
 import { IConsumable } from "@/firebase/firestore/consumable";
 import { IWooProduct } from "@/firebase/firestore/wooProduct";
-import { FormField } from "../ui/FormField";
 import { FormBody } from "../ui/FormBody";
-import { Button } from "../ui/Button";
-import { DropDown } from "../ui/DropDown";
+import {
+  TextField,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Checkbox,
+  Chip,
+  Stack,
+  Button,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import { createProduct } from "@/firebase/functions/product";
+import { useAuth } from "@/context/authContext";
+import { useRouter } from "next/router";
+import { IProduct, IProductConsumables } from "@/firebase/firestore/product";
+import { NumberField } from "../ui/NumberField";
+import { v4 } from "uuid"
 
 interface IProductsForm {
   wooProducts: IWooProduct[];
+  products: IProduct[];
   consmables: IConsumable[];
   isLoading?: boolean;
 }
+
 export default function ProductsForm(props: IProductsForm) {
-  const { wooProducts, isLoading, consmables } = props;
+  const { wooProducts, isLoading, consmables, products } = props;
+  const productsId = products.map((p) => p.wooId);
   const [showModal, setShowModal] = useState(false);
   const [formStage, setFormStage] = useState("init");
 
-  // Form Fields
   const [name, setName] = useState("");
-  const [wooProduct, setWooProduct] = useState<IWooProduct>();
-  const [isBundle, setIsBundle] = useState(false);
+  const [wooProduct, setWooProduct] = useState<IWooProduct>({
+    id: "",
+    name: "",
+    img: "",
+  });
+  const [productType, setProductType] = useState("Product");
 
-  const [products, setProducts] = useState([]);
+  const [bundleProducts, setBundleProducts] = useState<IProduct[]>([]);
 
-  const [packageSize, setPackageSize] = useState(0);
-  const [packagesOnShelf, setPackagesOnShelf] = useState(0);
-  const [boxSize, setBoxSize] = useState(0);
-  const [boxesOnStock, setBoxesOnStock] = useState(0);
+  const [packageSize, setPackageSize] = useState<number>(0);
+  const [packagesOnShelf, setPackagesOnShelf] = useState<number>(0);
+  const [boxSize, setBoxSize] = useState<number>(0);
+  const [boxesOnStock, setBoxesOnStock] = useState<number>(0);
 
-  const [requiredConsmables, setRequiredConsmables] = useState([]);
-  //   wooId
-  //   imgUrl
-  //   consumables: string[],
+  const [requiredConsmables, setRequiredConsmables] = useState<
+    IProductConsumables[]
+  >([]);
 
-  //   const userUid: string = user.authUser?.uid || "";
-  //   if (user.loading) return null;
-  //   if (!user.loading && !user.authUser) router.push("/");
+  const user = useAuth();
+  const router = useRouter();
+
+  const userUid: string = user.authUser?.uid || "";
+  if (user.loading) return null;
+  if (!user.loading && !user.authUser) router.push("/");
 
   const saveProduct = async () => {
     try {
-      //   const value  = await createProduct();
-      //   if (!value) return console.log("Error adding consumable");
-      //   setShowModal(false);
+      if (!wooProduct) return;
+      const value = await createProduct(userUid, {
+        id:v4(),
+        boxesOnStock: boxesOnStock,
+        boxSize: boxSize,
+        imgUrl: wooProduct.img,
+        isBundle: productType === "Bundle",
+        name: name,
+        packageSize: packageSize,
+        packagesOnShelf: packagesOnShelf,
+        wooId: wooProduct.id,
+        products: bundleProducts.map((p) => p.wooId),
+        consumables: requiredConsmables,
+        active: true,
+      });
+      setShowModal(false);
+      router.reload();
     } catch (error) {}
   };
-
-  const selectProduct = (id: string) => {
-    console.log(id);
-  };
-
   return (
     <>
-      <Button
-        text="Add Product"
+      <LoadingButton
+        variant="contained"
+        color="success"
+        loading={isLoading}
         onClick={() => setShowModal(true)}
-        isLoading={isLoading}
-      />
+      >
+        Add product
+      </LoadingButton>
       {showModal ? (
         <FormBody title="New Product">
-          {/* First comes product selecting from WooCommerce */}
-          {formStage === "init" && (
-            <>
-              <DropDown
-                title="WooProduct:"
-                options={wooProducts}
-                onSelect={selectProduct}
-              />
-              <br />
-              <FormField
-                name="name"
-                value={name}
-                title="Name:"
-                type="string"
-                onChange={(e) => setName(e.target.value)}
-              />
-              <br />
+          <FormControl fullWidth>
+            {formStage === "init" && (
+              <>
+                <FormControl>
+                  <InputLabel id="wooProduct">WooCommerce</InputLabel>
+                  <Select
+                    label="WooCommerce"
+                    labelId="wooProduct"
+                    id="demo-simple-select-autowidth"
+                    autoWidth
+                    value={wooProduct?.id}
+                  >
+                    {wooProducts
+                      .filter((p) => !productsId.includes(p.id))
+                      .map((w, i) => (
+                        <MenuItem
+                          key={i}
+                          value={w.id}
+                          onClick={() => setWooProduct(w)}
+                        >
+                          {w.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+                <br />
+                <FormControl className="py-4">
+                  <TextField
+                    required
+                    id="outlined-basic"
+                    label={"Name"}
+                    variant="outlined"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </FormControl>
+                <FormControl>
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    name="radio-buttons-group"
+                    value={productType}
+                    onChange={(e) => setProductType(e.target.value)}
+                    row
+                  >
+                    <FormControlLabel
+                      value="Product"
+                      control={<Radio />}
+                      label="Product"
+                    />
+                    <FormControlLabel
+                      value="Bundle"
+                      control={<Radio />}
+                      label="Bundle"
+                    />
+                  </RadioGroup>
+                </FormControl>
 
-              <input
-                type="radio"
-                name="topping"
-                value="false"
-                id="regular"
-                checked={!isBundle}
-                onChange={(e) =>
-                  setIsBundle(e.currentTarget.value === "true" ? true : false)
-                }
-              />
-              <label htmlFor="regular">Regular Product</label>
-              <br />
-              <input
-                type="radio"
-                name="topping"
-                value="true"
-                id=""
-                checked={isBundle}
-                onChange={(e) =>
-                  setIsBundle(e.currentTarget.value === "true" ? true : false)
-                }
-              />
-              <label htmlFor="medium">Bundle of products</label>
+                <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
+                  <Button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    variant="outlined"
+                    disabled={name === "" || wooProduct.id === ""}
+                    onClick={() => setFormStage(productType)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </>
+            )}
 
-              <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
-                <button
-                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => setShowModal(false)}
+            {formStage === "Product" && (
+              <FormControl fullWidth>
+                <InputLabel id="productConsumables">
+                  Product Consumables
+                </InputLabel>
+                <Select
+                  multiple
+                  labelId="productConsumables"
+                  id="demo-simple-select-autowidth"
+                  autoWidth
+                  value={[""]}
+                  label="Product Consumables"
                 >
-                  Close
-                </button>
-                <button
-                  className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() =>
-                    isBundle ? setFormStage("bundle") : setFormStage("product")
-                  }
+                  {consmables.map((w, i) => (
+                    <MenuItem
+                      key={i}
+                      value={w.name}
+                      onClick={() =>
+                        setRequiredConsmables([
+                          ...requiredConsmables,
+                          { id: w.id, name:w.name, amount: 1 },
+                        ])
+                      }
+                    >
+                      {w.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <br />
+                <Stack
+                  spacing={{ xs: 1, sm: 2 }}
+                  direction="row"
+                  useFlexGap
+                  flexWrap="wrap"
                 >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
+                  {requiredConsmables.map((rc, i) => (
+                    <Chip
+                      label={rc.name}
+                      key={i}
+                      variant="outlined"
+                      onDelete={() =>
+                        setRequiredConsmables([
+                          ...requiredConsmables.slice(0, i),
+                          ...requiredConsmables.slice(i + 1),
+                        ])
+                      }
+                    />
+                  ))}
+                </Stack>
+                <br />
+                <NumberField
+                  required
+                  label={"Package Size"}
+                  setValue={setPackageSize}
+                  value={packageSize}
+                />
+                <br />
+                <NumberField
+                  required
+                  label={"Box Size"}
+                  setValue={setBoxSize}
+                  value={boxSize}
+                />
+                <br />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Auto-Dispatchable"
+                  labelPlacement="start"
+                />
+                <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
+                  <Button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => setFormStage("init")}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => setFormStage("Stock")}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </FormControl>
+            )}
 
-          {formStage === "product" && (
-            <>
-              <FormField
-                name="packageSize"
-                value={packageSize}
-                type="number"
-                title="Package Size"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackageSize((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-              <br />
+            {formStage === "Bundle" && (
+              <>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor="bundleProducts">
+                    Bundle Products
+                  </InputLabel>
+                  <Select
+                    value={[""]}
+                    label="Bundle Products"
+                    id="bundleProducts"
+                  >
+                    {products
+                      .filter((p) => !p.isBundle)
+                      .map((p, i) => (
+                        <MenuItem
+                          key={i}
+                          value={p.wooId}
+                          onClick={() =>
+                            setBundleProducts([...bundleProducts, p])
+                          }
+                        >
+                          {p.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  <Stack
+                    spacing={{ xs: 1, sm: 2 }}
+                    direction="row"
+                    useFlexGap
+                    flexWrap="wrap"
+                    className="my-4"
+                  >
+                    {bundleProducts.map((bp, i) => (
+                      <Chip
+                        label={bp.name}
+                        key={i}
+                        variant="outlined"
+                        onDelete={() =>
+                          setBundleProducts([
+                            ...bundleProducts.slice(0, i),
+                            ...bundleProducts.slice(i + 1),
+                          ])
+                        }
+                      />
+                    ))}
+                  </Stack>
+                </FormControl>
+                <FormControl>
+                  <InputLabel htmlFor="bundleConsumables">
+                    Bundle Consumables
+                  </InputLabel>
+                  <Select
+                    id="bundleConsumables"
+                    value={[""]}
+                    label="Bundle Consumables"
+                  >
+                    {consmables.map((w, i) => (
+                      <MenuItem
+                        key={i}
+                        value={w.name}
+                        onClick={() =>
+                          setRequiredConsmables([...requiredConsmables, w])
+                        }
+                      >
+                        {w.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
 
-              <FormField
-                name="packagesOnShelf"
-                value={packagesOnShelf}
-                type="number"
-                title="Packages on Shelf"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackageSize((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-              <br />
+                  <Stack
+                    spacing={{ xs: 1, sm: 2 }}
+                    direction="row"
+                    useFlexGap
+                    flexWrap="wrap"
+                    className="my-4"
+                  >
+                    {requiredConsmables.map((rc, i) => (
+                      <Chip
+                        label={rc.name}
+                        key={i}
+                        variant="outlined"
+                        onDelete={() =>
+                          setRequiredConsmables([
+                            ...requiredConsmables.slice(0, i),
+                            ...requiredConsmables.slice(i + 1),
+                          ])
+                        }
+                      />
+                    ))}
+                  </Stack>
+                </FormControl>
 
-              <FormField
-                name="packagesOnShelf"
-                value={packagesOnShelf}
-                type="number"
-                title="Packages on Shelf"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackageSize((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-              <br />
+                <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
+                  <Button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => setFormStage("init")}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={saveProduct}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </>
+            )}
 
-              <FormField
-                name="packagesOnShelf"
-                value={packagesOnShelf}
-                type="number"
-                title="Packages on Shelf"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackageSize((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-              <br />
-              <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
-                <button
-                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => setFormStage("init")}
-                >
-                  Back
-                </button>
-                <button
-                  className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => (isBundle ? setFormStage(1) : setFormStage(2))}
-                >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
-
-          {formStage === "bundle" && ( // Package Data
-            <>
-              <FormField
-                name="packageSize"
-                value={packageSize}
-                type="number"
-                title="Package Size:"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackageSize((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-              <br />
-              <FormField
-                name="packagesOnShelf"
-                value={packagesOnShelf}
-                type="number"
-                title="Packages on Shelf:"
-                pattern="[0-9]*"
-                onChange={(e) =>
-                  setPackagesOnShelf((v) =>
-                    e.target.validity.valid ? e.target.value : v
-                  )
-                }
-              />
-
-              <br />
-              <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
-                <button
-                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => setFormStage("init")}
-                >
-                  Back
-                </button>
-                <button
-                  className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                  type="button"
-                  onClick={() => (isBundle ? setFormStage(1) : setFormStage(2))}
-                >
-                  Next
-                </button>
-              </div>
-            </>
-          )}
+            {formStage === "Stock" && (
+              <>
+                <FormControl>
+                  <NumberField
+                    label={"Packages on Shelf"}
+                    setValue={setPackagesOnShelf}
+                    value={packagesOnShelf}
+                  />
+                </FormControl>
+                <br />
+                <FormControl>
+                  <NumberField
+                    label={"Boxes on Stock"}
+                    setValue={setBoxesOnStock}
+                    value={boxesOnStock}
+                  />
+                </FormControl>
+                <div className="flex items-center justify-end pt-2 border-t border-solid border-slate-200 rounded-b">
+                  <Button
+                    className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => setFormStage("Product")}
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    className="bg-emerald-500 text-white hover:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                    onClick={() => saveProduct()}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </>
+            )}
+          </FormControl>
         </FormBody>
       ) : null}
     </>

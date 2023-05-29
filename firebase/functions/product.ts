@@ -1,51 +1,54 @@
 import {
-  addDoc,
   collection,
-  DocumentData,
+  doc,
   getDocs,
   query,
   QueryDocumentSnapshot,
+  setDoc,
   where,
 } from "firebase/firestore";
 import { database } from "../config";
-import { useAuth } from "@/context/authContext";
+import { createLog } from "./log";
+import { IProduct } from "../firestore/product";
+import { v4 } from "uuid";
 
-const productsCollection = collection(database, "products");
+const productsCollection = collection(database, "products").withConverter({
+  toFirestore: (data: IProduct) => data,
+  fromFirestore: (snap: QueryDocumentSnapshot) => snap.data() as IProduct,
+});
 
-export async function createProduct(
-  wooId: string,
-  name: string,
-  imgUrl: string,
-  consumables: string[],
-  isBundle: boolean,
-  products: string[],
-  packageSize: number,
-  packagesOnShelf: number,
-  boxSize: number,
-  boxesOnStock: number
-) {
+export async function createProduct(userUid: string, product: IProduct) {
   try {
-    const user = useAuth();
-    const userUid: string = user.authUser!.uid || "";
-    if (!userUid) throw new Error("No User");
-
-    const docRef = await addDoc(productsCollection, {
-      wooId,
-      name,
-      imgUrl,
-      consumables,
-      isBundle,
-      products,
-      packageSize,
-      packagesOnShelf,
-      boxSize,
-      boxesOnStock,
-      active: true,
+    const docRef = doc(productsCollection, product.id);
+    await setDoc(docRef, {
+      ...product,
+      id: docRef.id,
     });
+
     console.log("Product written with ID: ", docRef.id);
+    await createLog({
+      id: v4(),
+      type: "log",
+      desc: "Created new Product",
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [docRef.id],
+    });
     return docRef.id;
   } catch (e) {
     console.error("Error adding Product: ", e);
+    await createLog({
+      id: v4(),
+      type: "error",
+      desc: `Error Creating new Product, ${name}, wooId:${product.wooId}`,
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: product.consumables.map((c) => c.id),
+      relatedProducts: [],
+    });
     return false;
   }
 }

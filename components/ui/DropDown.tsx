@@ -24,7 +24,7 @@ export function DropDown(props: IAppProps) {
         }}
       >
         {options.map((p) => (
-          <option value={p.id}>{p.name}</option>
+          <option key={p.id} value={p.id}>{p.name}</option>
         ))}
       </select>
     </label>

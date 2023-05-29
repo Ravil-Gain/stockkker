@@ -1,6 +1,5 @@
-export interface productConsumables {
+export interface IOrder {
   id: string;
-  orderId: string;
   products: string[];
   consumables: string[];
 }

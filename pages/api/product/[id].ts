@@ -10,7 +10,7 @@ export default function handler(
   switch (requestMethod) {
     // Get product by id
     case "GET":
-        return res.json({first:"da"});
+        // return res.json({first:"da"});
 
     // // Create product
     // case "POST":

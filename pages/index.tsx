@@ -1,41 +1,23 @@
-import Diagram from "@/components/Diagram";
+// import Diagram from "@/components/Bar";
 import { ChartData } from "chart.js/auto";
 import wooCommerce from "../woocommerce/woocommerce";
 import { useEffect, useState } from "react";
+// import Bar from "@/components/Bar";
 
 export default function Home() {
   const [products, setProducts] = useState(null);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
 
-  useEffect(() => {
-    wooCommerce.get("products", { per_page: 50 }).then((data) => {
-      setProducts(data.data);
-      setLoading(false);
-    });
-  }, []);
+  // useEffect(() => {
+  //   wooCommerce.get("products", { per_page: 50 }).then((data) => {
+  //     setProducts(data.data);
+  //     setLoading(false);
+  //   });
+  // }, []);
 
   const data: ChartData = {
     labels: [
-      "Hurmaa",
-      "Kiivi",
-      "Churchkhella",
-      "Õunad",
-      "Aprikoos",
-      "Hurmaa",
-      "Kiivi",
-      "Churchkhella",
-      "Õunad",
-      "Aprikoos",
-      "Hurmaa",
-      "Kiivi",
-      "Churchkhella",
-      "Õunad",
-      "Aprikoos",
-      "Hurmaa",
-      "Kiivi",
-      "Churchkhella",
-      "Õunad",
-      "Aprikoos",
+      "Hurmaa"
     ],
     datasets: [
       {
@@ -43,8 +25,7 @@ export default function Home() {
         backgroundColor: "#caf270",
         barThickness: 50,
         data: [
-          12, 59, 5, 56, 58, 12, 59, 5, 56, 58, 12, 59, 5, 56, 58, 12, 59, 5,
-          56, 58,
+          12
         ],
         borderRadius: {
           bottomLeft: 3,
@@ -58,8 +39,7 @@ export default function Home() {
         backgroundColor: "#008d93",
         barThickness: 50,
         data: [
-          12, 59, 5, 56, 58, 12, 59, 5, 56, 58, 12, 59, 5, 56, 58, 12, 59, 5,
-          56, 58,
+          6
         ],
         borderRadius: {
           bottomLeft: 3,
@@ -81,7 +61,7 @@ export default function Home() {
       ) : (
         <div className="overflow-x-scroll">
           <div className="relative">
-            <Diagram data={data} />
+            {/* <Bar current={0} order={0} /> */}
           </div>
           {/* <canvas id="myChartAxis" height="300" width="0"></canvas> */}
         </div>

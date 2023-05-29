@@ -1,6 +1,4 @@
-import Diagram from "@/components/Diagram";
 import wooCommerce from "@/woocommerce/woocommerce";
-import { ChartData } from "chart.js/auto";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -25,7 +23,7 @@ export default function Home() {
           {products &&
             products.map((product, index) => (
               <div key={index} className="flex flex-col items-center justify-center h-40 w-40 bg-white border-8 border-sky-500 m-2 p-2">
-                 <img src={product.images[0]?.src} className="object-cover h-20 w-20"></img>
+                 <img alt={product.name} src={product.images[0]?.src} className="object-cover h-20 w-20"></img>
                  <div className="text-xs text-center"> { product.name} </div>
               </div>
             ))}

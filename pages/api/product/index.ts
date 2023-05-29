@@ -10,6 +10,6 @@ export default async function handler(
   switch (requestMethod) {
     // Get all products
     case "GET":
-      return res.json({first:"da"});
+      // return res.json({first:"da"});
   }
 }

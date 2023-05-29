@@ -11,7 +11,7 @@ export default function handler(
   switch (requestMethod) {
     // Get consumables amout
     case "GET":
-      return res.json({first:"da"});
+      // return res.json({first:"da"});
     // change consumables amounts
     case "PATCH":
       return res.status(200).json([]);

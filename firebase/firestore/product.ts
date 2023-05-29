@@ -1,23 +1,18 @@
-export interface ConsumablesDocument {
-  amount: number;
-  consumableId: string;
-}
-
-declare enum UnitsEmun {
-  "gram",
-  "liter",
-  "unit",
-}
-
-export interface ListDocument {
+export interface IProductConsumables {
   id: string;
-  // Id from wordPress
-  productId:string;
+  name:string;
+  amount: number;
+}
+
+
+export interface IProduct {
+  id: string;
+  wooId: string;
   name: string;
   imgUrl: string;
 
   // Custom object of consumables required
-  consumables: string[];
+  consumables: IProductConsumables[];
 
   // if bundle, set relative products
   isBundle: boolean;
@@ -30,7 +25,7 @@ export interface ListDocument {
   packagesOnShelf: number;
 
   boxSize: number;
-  boxesOnStock:number;
+  boxesOnStock: number;
 
   active: boolean;
 }
