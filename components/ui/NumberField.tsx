@@ -1,3 +1,4 @@
+import InputAdornment from "@mui/material/InputAdornment";
 import TextField from "@mui/material/TextField";
 import * as React from "react";
 
@@ -6,10 +7,12 @@ export interface IAppProps {
   required?: boolean;
   value: number;
   setValue: any;
+  endAdornment?: string;
+  disabled?: boolean;
 }
 
 export function NumberField(props: IAppProps) {
-  const { required = false, value, setValue, label } = props;
+  const { required = false, value, setValue, label, endAdornment, disabled } = props;
   return (
     <TextField
       required={required}
@@ -17,6 +20,7 @@ export function NumberField(props: IAppProps) {
       label={label}
       variant="outlined"
       value={value}
+      disabled={disabled}
       onChange={(e) => {
         const numberValue: number = Number(e.target.value);
         setValue(numberValue);
@@ -25,6 +29,9 @@ export function NumberField(props: IAppProps) {
         if (!/[0-9]/.test(event.key)) {
           event.preventDefault();
         }
+      }}
+      InputProps={{
+        endAdornment: <InputAdornment position="start">{endAdornment || ''}</InputAdornment>,
       }}
     />
   );

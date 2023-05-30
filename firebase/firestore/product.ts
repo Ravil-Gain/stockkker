@@ -18,9 +18,6 @@ export interface IProduct {
   isBundle: boolean;
   products: string[];
 
-  // measurementUnits: UnitsEmun;
-
-  // what about bundles?
   packageSize: number;
   packagesOnShelf: number;
 
@@ -28,4 +25,7 @@ export interface IProduct {
   boxesOnStock: number;
 
   active: boolean;
+
+  autoDispatch: boolean;
+  measurementUnits?: 'grams' | 'psc';
 }

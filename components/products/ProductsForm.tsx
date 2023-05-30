@@ -15,6 +15,8 @@ import {
   Chip,
   Stack,
   Button,
+  ToggleButtonGroup,
+  ToggleButton,
 } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { createProduct } from "@/firebase/functions/product";
@@ -22,7 +24,7 @@ import { useAuth } from "@/context/authContext";
 import { useRouter } from "next/router";
 import { IProduct, IProductConsumables } from "@/firebase/firestore/product";
 import { NumberField } from "../ui/NumberField";
-import { v4 } from "uuid"
+import { v4 } from "uuid";
 
 interface IProductsForm {
   wooProducts: IWooProduct[];
@@ -47,6 +49,8 @@ export default function ProductsForm(props: IProductsForm) {
 
   const [bundleProducts, setBundleProducts] = useState<IProduct[]>([]);
 
+  const [units, setUnits] = useState<"grams" | "psc">("grams");
+  const [autoDispatch, setAutoDispatch] = useState<boolean>(false);
   const [packageSize, setPackageSize] = useState<number>(0);
   const [packagesOnShelf, setPackagesOnShelf] = useState<number>(0);
   const [boxSize, setBoxSize] = useState<number>(0);
@@ -67,7 +71,7 @@ export default function ProductsForm(props: IProductsForm) {
     try {
       if (!wooProduct) return;
       const value = await createProduct(userUid, {
-        id:v4(),
+        id: v4(),
         boxesOnStock: boxesOnStock,
         boxSize: boxSize,
         imgUrl: wooProduct.img,
@@ -79,6 +83,8 @@ export default function ProductsForm(props: IProductsForm) {
         products: bundleProducts.map((p) => p.wooId),
         consumables: requiredConsmables,
         active: true,
+        measurementUnits: units,
+        autoDispatch: autoDispatch,
       });
       setShowModal(false);
       router.reload();
@@ -95,7 +101,7 @@ export default function ProductsForm(props: IProductsForm) {
         Add product
       </LoadingButton>
       {showModal ? (
-        <FormBody title="New Product">
+        <FormBody title={name === "" ? "New Product" : name}>
           <FormControl fullWidth>
             {formStage === "init" && (
               <>
@@ -192,7 +198,7 @@ export default function ProductsForm(props: IProductsForm) {
                       onClick={() =>
                         setRequiredConsmables([
                           ...requiredConsmables,
-                          { id: w.id, name:w.name, amount: 1 },
+                          { id: w.id, name: w.name, amount: 1 },
                         ])
                       }
                     >
@@ -221,12 +227,46 @@ export default function ProductsForm(props: IProductsForm) {
                     />
                   ))}
                 </Stack>
+
+                <ToggleButtonGroup
+                  value={units}
+                  exclusive
+                  onChange={(
+                    event: React.MouseEvent<HTMLElement>,
+                    newAlignment: string | null
+                  ) => {
+                    switch (newAlignment) {
+                      case "grams":
+                        setUnits(newAlignment);
+                        setPackageSize(0);
+                        setAutoDispatch(false);
+                        break;
+                      case "psc":
+                        setPackageSize(1);
+                        setAutoDispatch(true);
+                        setUnits(newAlignment);
+
+                        break;
+                    }
+                  }}
+                  className="mx-auto pt-4"
+                >
+                  <ToggleButton value="grams" aria-label="left aligned">
+                    <span> Grams </span>
+                  </ToggleButton>
+                  <ToggleButton value="psc" aria-label="justified">
+                    <span> Psc </span>
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
                 <br />
                 <NumberField
                   required
                   label={"Package Size"}
                   setValue={setPackageSize}
                   value={packageSize}
+                  endAdornment={units}
+                  disabled={units === "psc"}
                 />
                 <br />
                 <NumberField
@@ -234,10 +274,18 @@ export default function ProductsForm(props: IProductsForm) {
                   label={"Box Size"}
                   setValue={setBoxSize}
                   value={boxSize}
+                  endAdornment={units}
                 />
                 <br />
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Checkbox
+                      checked={autoDispatch}
+                      onChange={(event: React.SyntheticEvent) =>
+                        setAutoDispatch(event.target.checked)
+                      }
+                    />
+                  }
                   label="Auto-Dispatchable"
                   labelPlacement="start"
                 />
