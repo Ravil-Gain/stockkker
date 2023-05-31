@@ -281,7 +281,7 @@ export default function ProductsForm(props: IProductsForm) {
                   control={
                     <Checkbox
                       checked={autoDispatch}
-                      onChange={(event: React.SyntheticEvent) =>
+                      onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
                         setAutoDispatch(event.target.checked)
                       }
                     />
