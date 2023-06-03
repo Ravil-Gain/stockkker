@@ -21,12 +21,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
     // console.log('json data for this request is:', data);
     if ((data.status = "pending")) {
-      const orderProducts: Array<string> = data.line_items.map(
-        (item: any) => item.id
-      );
+      const products = await getProducts();
+      
+      const orderProducts: Array<string> = [];
+      const orderConsumables: Array<string> = [];
+
+      data.line_items.map((item: any) => {
+        for (let i = 0; i < item.quantity.length; i++) {
+          orderProducts.push(item.product_id);
+
+          products.find(p=>p.id===item.product_id)?.consumables.map((consum:any)=>{
+            for (let ci = 0; ci < consum.amount.length; ci++) {
+                orderConsumables.push(consum.id);
+            }
+          });
+        }
+      });
       await createOrder("webHook", {
         products: orderProducts,
-        consumables: [],
+        consumables: orderConsumables,
         id: v4(),
       });
 
