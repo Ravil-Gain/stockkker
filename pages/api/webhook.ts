@@ -20,17 +20,26 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     // console.log('raw body for this request is:', rawBody);
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
     // console.log('json data for this request is:', data);
-    if (data.status = "pending") {
-      await createLog({
+    if ((data.status = "pending")) {
+      const orderProducts: Array<string> = data.line_items.map(
+        (item: any) => item.id
+      );
+      await createOrder("webHook", {
+        products: orderProducts,
+        consumables: [],
         id: v4(),
-        type: "error",
-        desc: `${data}`,
-        userUid: "webhook",
-        orders: [data.id],
-        timeStamp: new Date(),
-        relatedConsumables: [],
-        relatedProducts: [],
       });
+
+      //   await createLog({
+      //     id: v4(),
+      //     type: "error",
+      //     desc: `${data.line_items.map((i:any)=>i.id)}`,
+      //     userUid: "webhook",
+      //     orders: [data.id],
+      //     timeStamp: new Date(),
+      //     relatedConsumables: [],
+      //     relatedProducts: [],
+      //   });
     }
 
     // Handle Orders
