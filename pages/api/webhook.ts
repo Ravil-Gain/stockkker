@@ -14,99 +14,67 @@ async function getRawBody(readable: Readable): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
+async function addOrder(data: any) {
+  const orderProducts: Array<string> = [];
+  const orderConsumables: Array<string> = [];
+  try {
+    // get products to handle consumables
+    const products = await getProducts();
+
+    // iterate every order item (item/bundle)
+    data.line_items.map((item: any) => {
+      for (let i = 0; i < item.quantity.length; i++) {
+        const product = products.find((p) => p.id === item.product_id);
+        if (!product) continue;
+        if (!product.isBundle) {
+          product.consumables.map((consum: any) => {
+            for (let ci = 0; ci < consum.amount.length; ci++) {
+              orderConsumables.push(consum.id);
+            }
+          });
+          orderProducts.push(item.product_id);
+        } else {
+          console.log("cannot handle bundle yet");
+        }
+      }
+    });
+    await createOrder("webHook", {
+      products: orderProducts,
+      consumables: orderConsumables,
+      id: v4(),
+    });
+  } catch (error) {
+    createLog({
+      id: v4(),
+      type: "error",
+      desc: `Error addingOrder, ${error}`,
+      userUid: "webhook",
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [],
+    });
+  }
+}
+
+async function removeOrder(data: any) {
+  try {
+  } catch (error) {
+    return false;
+  }
+}
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const rawBody = await getRawBody(req);
-    // console.log('raw body for this request is:', rawBody);
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
-    // console.log('json data for this request is:', data);
-    if ((data.status = "pending")) {
-      const products = await getProducts();
-      
-      const orderProducts: Array<string> = [];
-      const orderConsumables: Array<string> = [];
 
-      data.line_items.map((item: any) => {
-        for (let i = 0; i < item.quantity.length; i++) {
-          orderProducts.push(item.product_id);
+    // adding Order
+    if ((data.status = "pending")) await addOrder(data);
 
-          products.find(p=>p.id===item.product_id)?.consumables.map((consum:any)=>{
-            for (let ci = 0; ci < consum.amount.length; ci++) {
-                orderConsumables.push(consum.id);
-            }
-          });
-        }
-      });
-      await createOrder("webHook", {
-        products: orderProducts,
-        consumables: orderConsumables,
-        id: v4(),
-      });
-
-      //   await createLog({
-      //     id: v4(),
-      //     type: "error",
-      //     desc: `${data.line_items.map((i:any)=>i.id)}`,
-      //     userUid: "webhook",
-      //     orders: [data.id],
-      //     timeStamp: new Date(),
-      //     relatedConsumables: [],
-      //     relatedProducts: [],
-      //   });
-    }
-
-    // Handle Orders
-    // if ((data.status = "pending")) {
-    //   try {
-    //     const products = await getProducts();
-    //     const orderConsumables: string[] = [];
-    //     const orderProducts: string[] = [];
-
-    //     data.line_items.map(async (item: any) => {
-    //       const findProduct = products.find((p) => p.wooId === item.product_id);
-    //       if (findProduct) {
-    //         for (let i = 0; i < item.quantity; i++) {
-    //           orderProducts.push(findProduct.id);
-    //           findProduct.consumables.map((c) => {
-    //             orderConsumables.push(c.id);
-    //           });
-    //         }
-    //       } else {
-    //         console.log("Unregistered WooId product");
-    //         await createLog({
-    //           id: v4(),
-    //           type: "error",
-    //           desc: "Unregistered WooId product",
-    //           userUid: "system",
-    //           orders: [data.id],
-    //           timeStamp: new Date(),
-    //           relatedConsumables: [],
-    //           relatedProducts: [item.product_id],
-    //         });
-    //       }
-    //     });
-
-    //     const order: IOrder = {
-    //       id: data.id,
-    //       consumables: orderConsumables,
-    //       products: orderProducts,
-    //     };
-    //     await createOrder("system", order);
-    //   } catch (error) {
-    //     await createLog({
-    //         id: v4(),
-    //         type: "error",
-    //         desc: "Error Creating order",
-    //         userUid: "system",
-    //         orders: data.line_items,
-    //         timeStamp: new Date(),
-    //         relatedConsumables: [],
-    //         relatedProducts: [],
-    //       });
-    //   }
-    // }
+    // if ((data.status = "complete")) await removeOrder(data);
   }
-  res.status(200).json({ name: "John Doe" });
+  res.status(200);
   res.end();
 };
 
