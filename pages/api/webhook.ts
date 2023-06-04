@@ -70,7 +70,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
 
     // adding Order
-    if ((data.status = "pending")) await addOrder(data);
+    if ((data.status = "processing")) await addOrder(data);
 
     // if ((data.status = "complete")) await removeOrder(data);
   }
