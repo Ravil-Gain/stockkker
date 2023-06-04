@@ -41,7 +41,7 @@ async function addOrder(data: any) {
     await createOrder("webHook", {
       products: orderProducts,
       consumables: orderConsumables,
-      id: v4(),
+      id: data.id,
     });
   } catch (error) {
     createLog({
