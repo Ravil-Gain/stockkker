@@ -34,8 +34,8 @@ export async function createOrder(userUid: string, order: IOrder) {
       userUid: userUid,
       orders: [order.id],
       timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
+      relatedConsumables: order.products,
+      relatedProducts: order.consumables,
       error: error,
     });
     return false;
