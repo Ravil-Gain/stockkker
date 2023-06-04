@@ -7,4 +7,5 @@ export interface ILog {
   timeStamp: Date;
   relatedProducts: string[];
   relatedConsumables: string[];
+  error?: any;
 }

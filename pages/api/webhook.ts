@@ -57,6 +57,7 @@ async function addOrder(data: any) {
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
+      error: error,
     });
   }
 }

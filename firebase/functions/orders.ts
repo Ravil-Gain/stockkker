@@ -36,6 +36,7 @@ export async function createOrder(userUid: string, order: IOrder) {
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
+      error: error,
     });
     return false;
   }
@@ -76,6 +77,7 @@ export async function deleteOrder(userUid: string, orderId: string) {
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
+      error: error,
     });
     return false;
   }
