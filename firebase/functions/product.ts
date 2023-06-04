@@ -48,7 +48,6 @@ export async function createProduct(userUid: string, product: IProduct) {
       timeStamp: new Date(),
       relatedConsumables: product.consumables.map((c) => c.id),
       relatedProducts: [],
-      error: e,
     });
     return false;
   }

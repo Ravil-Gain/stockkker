@@ -1,4 +1,3 @@
-import { IOrder } from "@/firebase/firestore/order";
 import { createOrder } from "@/firebase/functions/orders";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "node:stream";
@@ -23,7 +22,7 @@ async function addOrder(data: any) {
 
     // iterate every order item (item/bundle)
     data.line_items.map((item: any) => {
-      const product = products.find((p) => p.id === item.product_id);
+      const product = products.find((p) => p.wooId === item.product_id);
       if (!product) {
         orderProducts.push(`${item.product_id}, not found`);
         return;
@@ -45,7 +44,7 @@ async function addOrder(data: any) {
     await createOrder("webHook", {
       products: orderProducts,
       consumables: orderConsumables,
-      id: data.id,
+      id: data.id.toString(),
     });
   } catch (error) {
     createLog({
@@ -57,7 +56,6 @@ async function addOrder(data: any) {
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
-      error: error,
     });
   }
 }

@@ -56,7 +56,6 @@ export async function createConsumable(
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
-      error: e,
     });
     return false;
   }
@@ -93,7 +92,6 @@ export async function changeAmounts(
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
-      error: error,
     });
 
     return false;
@@ -140,7 +138,6 @@ export async function updateConsumable(
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
-      error: error,
     });
     return false;
   }
