@@ -24,17 +24,21 @@ async function addOrder(data: any) {
     // iterate every order item (item/bundle)
     data.line_items.map((item: any) => {
       const product = products.find((p) => p.id === item.product_id);
-      for (let i = 0; i < item.quantity; i++) {
-        if (!product) continue;
-        if (!product.isBundle) {
-          product.consumables.map((consum: any) => {
-            for (let ci = 0; ci < consum.amount; ci++) {
-              orderConsumables.push(consum.id);
-            }
-          });
-          orderProducts.push(item.product_id);
-        } else {
-          console.log("cannot handle bundle yet");
+      if (!product) {
+        orderProducts.push(`${item.product_id}, not found`);
+        return;
+      } else {
+        for (let i = 0; i < item.quantity; i++) {
+          if (!product.isBundle) {
+            product.consumables.map((consum: any) => {
+              for (let ci = 0; ci < consum.amount; ci++) {
+                orderConsumables.push(consum.id);
+              }
+            });
+            orderProducts.push(item.product_id);
+          } else {
+            console.log("cannot handle bundle yet");
+          }
         }
       }
     });
