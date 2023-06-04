@@ -28,7 +28,7 @@ async function addOrder(data: any) {
         if (!product) continue;
         if (!product.isBundle) {
           product.consumables.map((consum: any) => {
-            for (let ci = 0; ci < consum.amount.length; ci++) {
+            for (let ci = 0; ci < consum.amount; ci++) {
               orderConsumables.push(consum.id);
             }
           });
