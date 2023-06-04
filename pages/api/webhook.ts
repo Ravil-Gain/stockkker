@@ -23,8 +23,8 @@ async function addOrder(data: any) {
 
     // iterate every order item (item/bundle)
     data.line_items.map((item: any) => {
-      for (let i = 0; i < item.quantity.length; i++) {
-        const product = products.find((p) => p.id === item.product_id);
+      const product = products.find((p) => p.id === item.product_id);
+      for (let i = 0; i < item.quantity; i++) {
         if (!product) continue;
         if (!product.isBundle) {
           product.consumables.map((consum: any) => {
