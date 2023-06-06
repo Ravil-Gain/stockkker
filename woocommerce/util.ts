@@ -99,7 +99,7 @@ export async function completeOrder(data: any) {
     createLog({
       id: v4(),
       type: "error",
-      desc: `Error deleting Order`,
+      desc: `Error completing Order`,
       userUid: "webhook",
       orders: [data.id.toString() || "noId"],
       timeStamp: new Date(),
@@ -117,7 +117,7 @@ export async function cancelOrder(data: any) {
     createLog({
       id: v4(),
       type: "error",
-      desc: `Error deleting Order`,
+      desc: `Error canceling Order`,
       userUid: "webhook",
       orders: [data.id.toString() || "noId"],
       timeStamp: new Date(),
