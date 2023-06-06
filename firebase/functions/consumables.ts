@@ -61,7 +61,7 @@ export async function createConsumable(
   }
 }
 
-export async function changeAmounts(
+export async function changeConsumableAmounts(
   id: string,
   amount: number,
   userUid: string

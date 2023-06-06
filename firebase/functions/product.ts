@@ -2,9 +2,11 @@ import {
   collection,
   doc,
   getDocs,
+  increment,
   query,
   QueryDocumentSnapshot,
   setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { database } from "../config";
@@ -60,4 +62,42 @@ export async function getProducts() {
   return querySnapshot.docs.map((item) => {
     return { ...item.data(), id: item.id };
   });
+}
+
+
+export async function changeShelfProductAmounts(
+  id: string,
+  amount: number,
+  userUid: string
+) {
+  if (!userUid || userUid === "") return;
+  try {
+    const docRef = doc(productsCollection, id);
+    updateDoc(docRef, { packagesOnShelf: increment(amount) });
+    await createLog({
+      id: v4(),
+      type: "log",
+      desc: `Product amounts changed ${amount}`,
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [docRef.id],
+    });
+
+    return docRef.id;
+  } catch (error) {
+    await createLog({
+      id: v4(),
+      type: "error",
+      desc:  "Error with Product amounts",
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [],
+    });
+
+    return false;
+  }
 }

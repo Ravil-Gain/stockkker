@@ -9,8 +9,9 @@ import {
   QueryDocumentSnapshot,
   doc,
   setDoc,
+  getDoc,
 } from "firebase/firestore";
-import { v4 } from "uuid"
+import { v4 } from "uuid";
 
 const ordersCollection = collection(database, "orders").withConverter({
   toFirestore: (data: IOrder) => data,
@@ -39,6 +40,17 @@ export async function createOrder(userUid: string, order: IOrder) {
     });
     return false;
   }
+}
+
+export async function getOrder(id: string) {
+  try {
+    const snap = await getDoc(doc(ordersCollection, id));
+    if (!snap.exists()) {
+      console.log("No such document");
+      return false;
+    }
+    return snap.data();
+  } catch (error) {}
 }
 
 export async function getOrders() {

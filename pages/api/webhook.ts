@@ -1,9 +1,6 @@
-import { createOrder } from "@/firebase/functions/orders";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Readable } from "node:stream";
-import { getProducts } from "@/firebase/functions/product";
-import { createLog } from "@/firebase/functions/log";
-import { v4 } from "uuid";
+import { addOrder, cancelOrder, completeOrder } from "@/woocommerce/util";
 
 async function getRawBody(readable: Readable): Promise<Buffer> {
   const chunks = [];
@@ -13,69 +10,28 @@ async function getRawBody(readable: Readable): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-async function addOrder(data: any) {
-  const orderProducts: Array<string> = [];
-  const orderConsumables: Array<string> = [];
-  try {
-    // get products to handle consumables
-    const products = await getProducts();
-
-    // iterate every order item (item/bundle)
-    data.line_items.map((item: any) => {
-      const product = products.find((p) => p.wooId === item.product_id);
-      if (!product) {
-        orderProducts.push(`${item.product_id}, not found`);
-        return;
-      } else {
-        for (let i = 0; i < item.quantity; i++) {
-          if (!product.isBundle) {
-            product.consumables.map((consum: any) => {
-              for (let ci = 0; ci < consum.amount; ci++) {
-                orderConsumables.push(consum.id);
-              }
-            });
-            orderProducts.push(item.product_id);
-          } else {
-            console.log("cannot handle bundle yet");
-          }
-        }
-      }
-    });
-    await createOrder("webHook", {
-      products: orderProducts,
-      consumables: orderConsumables,
-      id: data.id.toString(),
-    });
-  } catch (error) {
-    createLog({
-      id: v4(),
-      type: "error",
-      desc: `Error addingOrder, ${error}`,
-      userUid: "webhook",
-      orders: [],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
-  }
-}
-
-async function removeOrder(data: any) {
-  try {
-  } catch (error) {
-    return false;
-  }
-}
-
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const rawBody = await getRawBody(req);
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
+    console.log(data.status);
 
-    // adding Order
-    if ((data.status = "processing")) await addOrder(data);
+    switch (data.status) {
+      case "processing":
+        await addOrder(data);
+        break;
 
-    // if ((data.status = "complete")) await removeOrder(data);
+      case "completed":
+        await completeOrder(data);
+        break;
+
+      case "cancelled":
+        await cancelOrder(data);
+        break;
+
+      default:
+        break;
+    }
   }
   res.status(200);
   res.end();
