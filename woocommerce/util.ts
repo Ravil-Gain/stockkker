@@ -32,8 +32,7 @@ export async function addOrder(data: any) {
     // get products to handle consumables
     const products = await getProducts();
 
-    // iterate every order item (item/bundle)
-    data.line_items.map(async (item: any) => {
+    for (const item of data.line_items) {
       let product;
       if (locale !== "et") {
         const original_id = await wooCommerce
@@ -79,7 +78,9 @@ export async function addOrder(data: any) {
           }
         }
       }
-    });
+    }
+    console.log("orderProducts", orderProducts);
+
     await createOrder("webHook", {
       products: orderProducts,
       consumables: orderConsumables,
