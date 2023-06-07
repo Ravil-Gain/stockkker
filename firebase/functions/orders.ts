@@ -50,7 +50,9 @@ export async function getOrder(id: string) {
       return false;
     }
     return snap.data();
-  } catch (error) {}
+  } catch (error) {
+    return false;
+  }
 }
 
 export async function getOrders() {

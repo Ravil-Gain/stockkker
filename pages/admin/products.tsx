@@ -5,7 +5,9 @@ import { IConsumable } from "@/firebase/firestore/consumable";
 import { IProduct } from "@/firebase/firestore/product";
 import { IWooProduct } from "@/firebase/firestore/wooProduct";
 import { getConsumables } from "@/firebase/functions/consumables";
+import { getOrders } from "@/firebase/functions/orders";
 import { getProducts } from "@/firebase/functions/product";
+import { orderReducer } from "@/woocommerce/util";
 import wooCommerce from "@/woocommerce/woocommerce";
 import {
   TableContainer,
@@ -23,6 +25,7 @@ export default function Products() {
   const [products, setProducts] = useState<IProduct[]>([]);
   const [wooProducts, setWooProducts] = useState<IWooProduct[]>([]);
   const [consumable, setConsumables] = useState<IConsumable[]>([]);
+  const [onHold, setOnHold] = useState<{ [x: string]: any }>();
   const [isLoadingProducts, setLoadingProducts] = useState(true);
   const [isLoadingWoo, setLoadingWoo] = useState(true);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
@@ -32,27 +35,39 @@ export default function Products() {
     const productsPromise = getProducts().then((data) => {
       setProducts(data);
       setLoadingProducts(false);
-      console.log(data);
     });
 
     const consumablesPromise = getConsumables().then((data) => {
       setConsumables(data);
     });
-    Promise.all([wooProducts, productsPromise, consumablesPromise]).then(
-      (val) => {
-        const productsIds = products.map((p) => p.id);
-        const productsToAdd = val[0].data.map((prod: any) => {
-          if (!productsIds.includes(prod.id))
-            return {
-              id: prod.id,
-              name: prod.name,
-              img: prod.images[0].src || "",
-            };
-        });
-        setWooProducts(productsToAdd);
-        setLoadingWoo(false);
-      }
-    );
+
+    const ordersPromise = getOrders().then((data) => {
+      const arrayProds: string[] = [];
+      data.map((d) => {
+        d.products.map((prod) => arrayProds.push(prod));
+      });
+      const reduced = arrayProds.reduce(orderReducer, {});
+      setOnHold(reduced);
+    });
+
+    Promise.all([
+      wooProducts,
+      productsPromise,
+      consumablesPromise,
+      ordersPromise,
+    ]).then((val) => {
+      const productsIds = products.map((p) => p.id);
+      const productsToAdd = val[0].data.map((prod: any) => {
+        if (!productsIds.includes(prod.id))
+          return {
+            id: prod.id,
+            name: prod.name,
+            img: prod.images[0].src || "",
+          };
+      });
+      setWooProducts(productsToAdd);
+      setLoadingWoo(false);
+    });
   }, []);
 
   return (
@@ -80,7 +95,9 @@ export default function Products() {
             <Table sx={{ minWidth: 320 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
+                  <TableCell align="center">WooId</TableCell>
                   <TableCell>Name</TableCell>
+                  <TableCell align="center">on Hold</TableCell>
                   <TableCell align="center">Shelf Packages</TableCell>
                   <TableCell className="hidden" align="center">
                     Stock Boxes
@@ -97,11 +114,12 @@ export default function Products() {
                       (row.boxesOnStock * row.boxSize) / row.packageSize;
                     return (
                       <TableRow
-                        key={row.name}
+                        key={row.id}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
                       >
+                        <TableCell align="center">{row.wooId}</TableCell>
                         <TableCell component="th" scope="row">
                           <span
                             className="cursor-pointer"
@@ -109,6 +127,9 @@ export default function Products() {
                           >
                             {row.name}
                           </span>
+                        </TableCell>
+                        <TableCell align="center">
+                          {onHold && onHold[row.id] || ""}
                         </TableCell>
                         <TableCell align="center">
                           {row.packagesOnShelf}
@@ -144,7 +165,7 @@ export default function Products() {
                   .map((row) => {
                     return (
                       <TableRow
-                        key={row.name}
+                        key={row.id}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}

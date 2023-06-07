@@ -79,7 +79,7 @@ export default function ProductsForm(props: IProductsForm) {
         name: name,
         packageSize: packageSize,
         packagesOnShelf: packagesOnShelf,
-        wooId: wooProduct.id,
+        wooId: wooProduct.id.toString(),
         products: bundleProducts.map((p) => p.wooId),
         consumables: requiredConsmables,
         active: true,

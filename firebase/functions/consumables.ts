@@ -73,7 +73,7 @@ export async function changeConsumableAmounts(
     await createLog({
       id: v4(),
       type: "log",
-      desc: "Consumable amounts",
+      desc: `Consumable amounts  ${amount}`,
       userUid: userUid,
       orders: [],
       timeStamp: new Date(),
