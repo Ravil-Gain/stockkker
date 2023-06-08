@@ -74,10 +74,10 @@ export async function deleteOrder(userUid: string, orderId: string) {
       type: "log",
       desc: "Order Deleted",
       userUid: userUid,
-      orders: [],
+      orders: [docRef.id],
       timeStamp: new Date(),
       relatedConsumables: [],
-      relatedProducts: [docRef.id],
+      relatedProducts: [],
     });
     return true;
   } catch (error) {

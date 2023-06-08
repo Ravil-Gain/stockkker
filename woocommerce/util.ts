@@ -35,13 +35,15 @@ export async function addOrder(data: any) {
     for (const item of data.line_items) {
       let product;
       if (locale !== "et") {
+        // very sad situation better to stick with one approach
         const original_id = await wooCommerce
           .get("products", { id: item.product_id })
-          .then((data) => {
-            return data.data.meta_data.find(
-              (meta: { key: string }) => meta.key === "original_id"
-            ).value;
-          });
+          .then(
+            (data) =>
+              data.data.meta_data.find(
+                (meta: { key: string }) => meta.key === "original_id"
+              )?.value || data.data.translations["et"]
+          );
         // remove when all wooIds changed to string
         const newId = Number(original_id);
         // @ts-ignore
@@ -93,7 +95,7 @@ export async function addOrder(data: any) {
       type: "error",
       desc: `Error addingOrder, ${error}`,
       userUid: "webhook",
-      orders: [],
+      orders: [data.id.toString()],
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
