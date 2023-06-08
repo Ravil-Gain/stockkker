@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   increment,
   query,
@@ -64,7 +65,6 @@ export async function getProducts() {
   });
 }
 
-
 export async function changeShelfProductAmounts(
   id: string,
   amount: number,
@@ -90,7 +90,7 @@ export async function changeShelfProductAmounts(
     await createLog({
       id: v4(),
       type: "error",
-      desc:  "Error with Product amounts",
+      desc: "Error with Product amounts",
       userUid: userUid,
       orders: [],
       timeStamp: new Date(),
@@ -98,6 +98,44 @@ export async function changeShelfProductAmounts(
       relatedProducts: [],
     });
 
+    return false;
+  }
+}
+
+export async function dispatchProduct(id: string, userUid: string) {
+  try {
+    const docRef = doc(productsCollection, id);
+
+    const product = (await getDoc(docRef)).data();
+    if (!product) throw new Error("No Product");
+
+    const toShelf = product.boxSize / product.packageSize;
+    await updateDoc(docRef, {
+      packagesOnShelf: increment(toShelf),
+      boxesOnStock: increment(-1),
+    });
+    await createLog({
+      id: v4(),
+      type: "log",
+      desc: `Product dispatched, to shelf ${toShelf}`,
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [product.id],
+    });
+    return true;
+  } catch (error: any) {
+    await createLog({
+      id: v4(),
+      type: "error",
+      desc: `Error with Product amounts ${error.message.toString() || ""}`,
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [],
+    });
     return false;
   }
 }

@@ -1,4 +1,5 @@
 import { EditProduct } from "@/components/products/EditProduct";
+import { ProductDispatch } from "@/components/products/ProductDispatch";
 import ProductsForm from "@/components/products/ProductsForm";
 import { Loading } from "@/components/ui/Loading";
 import { IConsumable } from "@/firebase/firestore/consumable";
@@ -17,6 +18,7 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FiBox } from "react-icons/fi";
@@ -29,6 +31,7 @@ export default function Products() {
   const [isLoadingProducts, setLoadingProducts] = useState(true);
   const [isLoadingWoo, setLoadingWoo] = useState(true);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
+  const [dispatchProduct, setDispatchProduct] = useState<IProduct | null>(null);
 
   useEffect(() => {
     const wooProducts = wooCommerce.get("products", { per_page: 100 });
@@ -37,9 +40,9 @@ export default function Products() {
       setLoadingProducts(false);
     });
 
-    const consumablesPromise = getConsumables().then((data) => {
-      setConsumables(data);
-    });
+    const consumablesPromise = getConsumables().then((data) =>
+      setConsumables(data)
+    );
 
     const ordersPromise = getOrders().then((data) => {
       const arrayProds: string[] = [];
@@ -87,6 +90,12 @@ export default function Products() {
           closeFn={() => setEditProduct(null)}
         />
       )}
+      {dispatchProduct !== null && (
+        <ProductDispatch
+          product={dispatchProduct}
+          closeFn={() => setDispatchProduct(null)}
+        />
+      )}
       {isLoadingProducts ? (
         <Loading />
       ) : (
@@ -103,6 +112,7 @@ export default function Products() {
                     Stock Boxes
                   </TableCell>
                   <TableCell align="right">Tottal</TableCell>
+                  <TableCell align="right"></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -129,7 +139,7 @@ export default function Products() {
                           </span>
                         </TableCell>
                         <TableCell align="center">
-                          {onHold && onHold[row.id] || ""}
+                          {(onHold && onHold[row.id]) || ""}
                         </TableCell>
                         <TableCell align="center">
                           {row.packagesOnShelf}
@@ -142,6 +152,11 @@ export default function Products() {
                           </div>
                         </TableCell>
                         <TableCell align="right">{tottal}</TableCell>
+                        <TableCell align="right">
+                          <Button onClick={() => setDispatchProduct(row)}>
+                            Dispatch
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
