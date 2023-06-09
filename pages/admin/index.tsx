@@ -40,13 +40,15 @@ export default function Admin() {
             const reduced = arrayProds.reduce(orderReducer, {});
             console.log(reduced);
 
+            //@ts-ignore
             const prods: IRaportProduct = products
-              .map((p: IProduct) => ({
-                onHold: reduced[p.id] || 0,
-                ...p,
-              }))
-              .sort((p1, p2) => p2.onHold - p1.onHold);
-
+            .map((p: IProduct) => ({
+              onHold: reduced[p.id] || 0,
+              ...p,
+            }))
+            .sort((p1, p2) => p2.onHold - p1.onHold);
+            
+            //@ts-ignore
             setProducts(prods);
             setLoading(false);
           },
