@@ -63,6 +63,11 @@ export async function getOrders() {
   });
 }
 
+export async function getOrdersSnapshot() {
+  const lists = query(ordersCollection);
+  return lists;
+}
+
 export async function deleteOrder(userUid: string, orderId: string) {
   try {
     const docRef = doc(ordersCollection, orderId);
@@ -74,7 +79,7 @@ export async function deleteOrder(userUid: string, orderId: string) {
       type: "log",
       desc: "Order Deleted",
       userUid: userUid,
-      orders: [docRef.id],
+      orders: [],
       timeStamp: new Date(),
       relatedConsumables: [],
       relatedProducts: [],
