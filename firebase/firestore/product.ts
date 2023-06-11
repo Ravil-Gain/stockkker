@@ -26,6 +26,8 @@ export interface IProduct {
 
   active: boolean;
 
+  // add to form
+  dispatchInfo?: string;
   autoDispatch: boolean;
   measurementUnits?: 'grams' | 'psc';
 }
