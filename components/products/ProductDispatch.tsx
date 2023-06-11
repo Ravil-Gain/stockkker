@@ -42,11 +42,13 @@ export function ProductDispatch(props: IProductDispatch) {
           src={product.imgUrl}
           width={200}
           height={200}
+          className="mx-auto"
         ></Image>
         {/* <img alt={product.name} src={product.imgUrl} className="object-cover h-20 w-20"></img> */}
 
         <Typography variant="body2" color="text.secondary">
-          {`${product.boxSize / product.packageSize} package will go to Shelf`}
+          <br/>
+          {`${(product.boxSize / product.packageSize).toFixed(0)} packages will go to Shelf`}
           <br />
           {`1 box will be removed from stock`}
         </Typography>
