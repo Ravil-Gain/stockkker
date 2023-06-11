@@ -129,7 +129,7 @@ export async function dispatchProduct(id: string, userUid: string) {
     await createLog({
       id: v4(),
       type: "error",
-      desc: `Error with Product amounts ${error.message.toString() || ""}`,
+      desc: `Error with Product dispatching ${error.message.toString() || ""}`,
       userUid: userUid,
       orders: [],
       timeStamp: new Date(),

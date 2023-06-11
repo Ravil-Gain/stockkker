@@ -1,4 +1,4 @@
-import { ShelfStatus } from "@/components/ShelfStatus";
+import { ShelfStatusBar } from "@/components/ShelfStatus";
 import { ProductDispatch } from "@/components/products/ProductDispatch";
 import { IProduct } from "@/firebase/firestore/product";
 import { getOrdersSnapshot } from "@/firebase/functions/orders";
@@ -78,7 +78,7 @@ export default function Prepare() {
         <p>Loading</p>
       ) : (
         <TableContainer component={Paper}>
-          <Table aria-label="simple table">
+          <Table size={'small'} sx={{ minWidth: 250 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
@@ -88,47 +88,48 @@ export default function Prepare() {
                 >
                   Status
                 </TableCell>
-                <TableCell align="center">onHold</TableCell>
-                <TableCell align="center">onShelf</TableCell>
-                <TableCell align="right">Dispatch</TableCell>
+                <TableCell align="center" sx={{ maxWidth: 30 }}>onHold</TableCell>
+                <TableCell align="center" sx={{ maxWidth: 30 }}>onShelf</TableCell>
+                <TableCell align="right" sx={{ maxWidth: 30 }}>Dispatch</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.map((row) => (
-                <TableRow
-                  key={row.id}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                  <TableCell component="th" scope="row">
-                    <div className="flex items-center justify-start cursor-pointer">
-                      {row.name}
-                    </div>
-                  </TableCell>
-                  <TableCell
-                    align="center"
-                    sx={{ display: { xs: "none", sm: "table-cell" } }}
+              {products
+                .filter((p) => !p.isBundle)
+                .map((row) => (
+                  <TableRow
+                  hover
+                    key={row.id}
+                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    {row.onHold ? (
-                      <ShelfStatus
+                    <TableCell sx={{ maxWidth: 50 }} >
+                      <div className="flex items-center justify-start cursor-pointer">
+                        {row.name}
+                      </div>
+                    </TableCell>
+                    <TableCell
+                      align="center"
+                      component="th"
+                      sx={{ display: { xs: "none", sm: "table-cell" } }}
+                    >
+                      <ShelfStatusBar
                         onHold={row.onHold}
                         onShelf={row.packagesOnShelf}
                       />
-                    ) : ""}
-                  </TableCell>
-
-                  <TableCell align="center">
-                    {row.onHold ? row.onHold : ""}
-                  </TableCell>
-                  <TableCell align="right">
-                    {row.packagesOnShelf.toFixed(2)}
-                  </TableCell>
-                  <TableCell align="right">
-                    <Button onClick={() => setDispatchProduct(row)}>
-                      <FiPackage />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell align="center" sx={{ maxWidth: 30 }}>
+                      {row.onHold ? row.onHold : ""}
+                    </TableCell>
+                    <TableCell align="center" sx={{ maxWidth: 30 }}>
+                      {row.packagesOnShelf.toFixed(0)}
+                    </TableCell>
+                    <TableCell align="right" sx={{ maxWidth: 30 }}>
+                      <Button onClick={() => setDispatchProduct(row)}>
+                        <FiPackage />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

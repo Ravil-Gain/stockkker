@@ -3,82 +3,34 @@ import * as React from "react";
 export interface IShelfStatusProps {
   onShelf: number;
   onHold: number;
-  //   max?: number;
 }
 
-export function ShelfStatus(props: IShelfStatusProps) {
+export function ShelfStatusBar(props: IShelfStatusProps) {
   const { onShelf, onHold } = props;
   const positive: boolean = onShelf > onHold;
 
-  const n1:number = (onShelf - onHold) / onShelf;
-  const n2 = 1-n1;
-
-//   const onShelfSize =  (onShelf - onHold / onShelf).toFixed();
-// //   const onHoldSize = 
-
-//   const completed: number = 50;
+  // calculate % of green area
+  const avalibleValue = (onShelf - onHold) / onShelf;
+  const onHoldValue = 1 - avalibleValue;
 
   const negativeLabel = positive ? "" : `${(onShelf - onHold).toFixed(0)}`;
-//   const positiveLabel = positive ? `${(onShelf - onHold).toFixed(0)}` : "";
-
-  const containerStyles = {
-    display: "flex",
-    height: 20,
-    width: "100%",
-    borderRadius: 5,
-  };
-
-  const negativeContainerStyles = {
-    display: "flex",
-    flexDirection: "row-reverse",
-    height: 20,
-    width: "50%",
-    borderRadius: 5,
-  };
-
-  const positiveContainerStyles = {
-    display: "flex",
-    height: 20,
-    width: "50%",
-    borderRadius: 5,
-  };
-
-  const negativeFillerStyles = {
-    height: "100%",
-    width: `${positive ? 0 : 0.3}`,
-    backgroundColor: "red",
-    borderRadius: "inherit",
-  };
-
-  const positiveFillerStyles = {
-    height: "100%",
-    width: `${positive ? n1*100 : 0}%`,
-    backgroundColor: "green",
-    borderRadius: "inherit",
-  };
-
-  const onHoldFillerStyles = {
-    height: "100%",
-    width: `${ n2*100 }%`,
-    backgroundColor: "rgb(255, 190, 190)",
-    borderRadius: "inherit",
-  };
-
-  const labelStyles = {
-    padding: 5,
-    color: "white",
-  };
 
   return (
-    <div style={containerStyles}>
-      <div style={negativeContainerStyles}>
-        <div style={negativeFillerStyles}>
-          <span style={labelStyles}>{negativeLabel}</span>
+    <div className="flex h-6 w-full rounded-lg">
+      <div className="flex flex-row-reverse h-full w-1/3 rounded-l-lg">
+        <div className={`h-full ${positive ? "w-0" : "w-full"} bg-red-600 rounded-l-lg`}>
+          <span className={"p-1 text-white"}>{negativeLabel}</span>
         </div>
       </div>
-      <div style={positiveContainerStyles}>
-        <div style={positiveFillerStyles}></div>
-        <div style={onHoldFillerStyles}></div>
+      <div className="flex h-full w-2/3">
+        <div
+          className={`h-full bg-green-600 ${onHold === 0 ? "rounded-r-lg" : ""}`}
+          style={{ width: `${positive ? (avalibleValue * 100) : 0}%` }}
+        ></div>
+        <div
+          className="h-full bg-red-300 rounded-r-lg"
+          style={{ width: `${onHoldValue * 100}%` }}
+        ></div>
       </div>
     </div>
   );
