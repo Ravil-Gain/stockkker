@@ -115,6 +115,7 @@ export default function Prepare() {
                       <ShelfStatusBar
                         onHold={row.onHold}
                         onShelf={row.packagesOnShelf}
+                        maxValue={row.boxSize/row.packageSize}
                       />
                     </TableCell>
                     <TableCell align="center" sx={{ maxWidth: 30 }}>
