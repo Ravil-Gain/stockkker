@@ -47,9 +47,9 @@ export async function addOrder(data: any) {
         // remove when all wooIds changed to string
         const newId = Number(original_id);
         // @ts-ignore
-        product = products.find((p) => p.wooId === newId);
+        product = products.find((p) => p.wooId === newId.toString());
       } else {
-        product = products.find((p) => p.wooId === item.product_id);
+        product = products.find((p) => p.wooId === item.product_id.toString());
       }
 
       // if we don't have such product

@@ -14,6 +14,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const rawBody = await getRawBody(req);
     const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
+console.log(data);
 
     switch (data.status) {
       case "processing":
