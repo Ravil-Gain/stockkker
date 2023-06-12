@@ -115,7 +115,7 @@ export default function ProductsForm(props: IProductsForm) {
                     value={wooProduct?.id}
                   >
                     {wooProducts
-                      .filter((p) => !productsId.includes(p.id))
+                      .filter((p) => !productsId.includes(p.id.toString()))
                       .map((w, i) => (
                         <MenuItem
                           key={i}
