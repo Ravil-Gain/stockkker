@@ -171,19 +171,20 @@ export async function completeOrder(data: any) {
 }
 
 export async function cancelOrder(data: any) {
-  try {
-    await deleteOrder("webhook", data.id.toString());
-  } catch (error) {
-    createLog({
-      id: v4(),
-      type: "error",
-      desc: `Error canceling Order`,
-      userUid: "webhook",
-      orders: [data.id.toString() || "noId"],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
-    return false;
-  }
+  return deleteOrder("webhook", data.id.toString());
+  // try {
+  //   await deleteOrder("webhook", data.id.toString());
+  // } catch (error) {
+  //   createLog({
+  //     id: v4(),
+  //     type: "error",
+  //     desc: `Error canceling Order`,
+  //     userUid: "webhook",
+  //     orders: [data.id.toString() || "noId"],
+  //     timeStamp: new Date(),
+  //     relatedConsumables: [],
+  //     relatedProducts: [],
+  //   });
+  //   return false;
+  // }
 }

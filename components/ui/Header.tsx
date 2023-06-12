@@ -14,7 +14,7 @@ export function Header() {
       <h1 className="cursor-default hidden md:block">Stockkker</h1>
       {user && user.authUser && (
        <div className="w-3/4 md:w-1/2 flex justify-around">
-        <Link className={pathname === '/admin' ? 'underline' : 'no-underline'} href={'/admin/'} key={'raport'}>Raport</Link>
+        <Link className={pathname === '/stock/prepare' ? 'underline' : 'no-underline'} href={'/stock/prepare/'} key={'prepare'}>Raport</Link>
         <Link className={pathname === '/admin/products' ? 'underline' : 'no-underline'} href={'/admin/products'} key={'products'}>Products</Link>
         <Link className={pathname === '/admin/consumables' ? 'underline' : 'no-underline'} href={'/admin/consumables'} key={'consumables'}>Consumables</Link>
        </div>
