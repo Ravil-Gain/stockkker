@@ -1,9 +1,3 @@
-import { ShelfStatusBar } from "@/components/ShelfStatus";
-import { ProductDispatch } from "@/components/products/ProductDispatch";
-import { IProduct } from "@/firebase/firestore/product";
-import { getOrdersSnapshot } from "@/firebase/functions/orders";
-import { getProducts } from "@/firebase/functions/product";
-import { orderReducer } from "@/woocommerce/util";
 import {
   TableContainer,
   Paper,
@@ -14,6 +8,12 @@ import {
   TableBody,
   Button,
 } from "@mui/material";
+import { ShelfStatusBar } from "@/components/ShelfStatus";
+import { ProductDispatch } from "@/components/products/ProductDispatch";
+import { IProduct } from "@/firebase/firestore/product";
+import { getOrdersSnapshot } from "@/firebase/functions/orders";
+import { getProducts } from "@/firebase/functions/product";
+import { orderReducer } from "@/woocommerce/util";
 import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FiPackage } from "react-icons/fi";
@@ -65,9 +65,6 @@ export default function Prepare() {
 
   return (
     <>
-      <h1 className="mx-auto mt-10 text-xl font-semibold capitalize ">
-        Preparation
-      </h1>
       {dispatchProduct !== null && (
         <ProductDispatch
           product={dispatchProduct}
@@ -127,6 +124,7 @@ export default function Prepare() {
                     <TableCell align="right" sx={{ maxWidth: 30 }}>
                       <Button onClick={() => setDispatchProduct(row)}>
                         <FiPackage />
+                      {row.boxesOnStock}
                       </Button>
                     </TableCell>
                   </TableRow>

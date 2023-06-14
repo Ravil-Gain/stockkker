@@ -21,7 +21,7 @@ import {
   Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { FiBox } from "react-icons/fi";
+import { FiBox, FiPackage } from "react-icons/fi";
 
 export default function Products() {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -75,7 +75,7 @@ export default function Products() {
 
   return (
     <>
-      <div className="flex items-center justify-between my-10">
+      <div className="flex items-center justify-between mb-6">
         <p className="text-xl font-semibold">Products</p>
         <ProductsForm
           wooProducts={wooProducts}
@@ -154,7 +154,7 @@ export default function Products() {
                         <TableCell align="right">{tottal}</TableCell>
                         <TableCell align="right">
                           <Button onClick={() => setDispatchProduct(row)}>
-                            Dispatch
+                            <FiPackage />
                           </Button>
                         </TableCell>
                       </TableRow>

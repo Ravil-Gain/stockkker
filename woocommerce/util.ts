@@ -21,6 +21,7 @@ export const orderReducer = (
 });
 
 export async function addOrder(data: any) {
+  const orderDate = new Date(data.date_created || null);
   const orderProducts: Array<string> = [];
   const orderConsumables: Array<string> = [];
   try {
@@ -85,6 +86,7 @@ export async function addOrder(data: any) {
 
     await createOrder("webHook", {
       products: orderProducts,
+      date: orderDate,
       consumables: orderConsumables,
       id: data.id.toString(),
     });

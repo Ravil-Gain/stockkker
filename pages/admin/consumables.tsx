@@ -41,7 +41,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex items-center justify-between my-10">
+      <div className="flex items-center justify-between mb-6">
         <p className="text-xl font-semibold">Consumables</p>
         <ConsumablesForm />
       </div>
