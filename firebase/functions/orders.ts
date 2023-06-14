@@ -11,7 +11,6 @@ import {
   setDoc,
   getDoc,
 } from "firebase/firestore";
-import { v4 } from "uuid";
 
 const ordersCollection = collection(database, "orders").withConverter({
   toFirestore: (data: IOrder) => data,
@@ -62,16 +61,6 @@ export async function deleteOrder(userUid: string, orderId: string) {
     const docRef = doc(ordersCollection, orderId);
     await deleteDoc(docRef);
     console.log("Order Deleted:", docRef.id);
-    // await createLog({
-    //   id: v4(),
-    //   type: "log",
-    //   desc: "Order Deleted",
-    //   userUid: userUid,
-    //   orders: [],
-    //   timeStamp: new Date(),
-    //   relatedConsumables: [],
-    //   relatedProducts: [],
-    // });
     return true;
   } catch (error) {
     return `Error deleting Order, ${orderId}`;

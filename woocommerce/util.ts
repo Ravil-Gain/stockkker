@@ -1,5 +1,4 @@
 import { changeConsumableAmounts } from "@/firebase/functions/consumables";
-import { createLog } from "@/firebase/functions/log";
 import {
   createOrder,
   getOrder,
@@ -145,4 +144,23 @@ export async function completeOrder(data: any) {
 
 export async function cancelOrder(data: any) {
   return deleteOrder("webhook", data.id.toString());
+}
+
+export async function updateOrders() {
+  try {
+    const orders = await wooCommerce.get("orders", { status: "processing" });
+    const orderPromises: Array<any> = [];
+
+    for (const order of orders.data) {
+      const orderPromise = addOrder(order);
+      orderPromises.push(orderPromise);
+    }
+
+    await Promise.all(orderPromises)
+      .then((val) => {})
+      .catch((error) => {
+        throw new Error("Error updating Orders");
+      });
+  } catch (error) {}
+  return "success";
 }

@@ -47,9 +47,10 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             );
             break;
           default:
+            description = `no suth method ${data.status}`;
+            type = "error";
             break;
         }
-        description = "success";
       })
       .catch((error) => {
         description = `error, ${error.message || ""}`;
