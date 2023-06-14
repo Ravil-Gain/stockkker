@@ -12,60 +12,58 @@ async function getRawBody(readable: Readable): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
-    let description: string;
+    let description: string = "";
     let type: "log" | "error" = "log";
     let orderId: string = "not_figured";
-    getRawBody(req)
-      .then((rawBody) => {
-        const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
-        orderId = data.id.toString();
-        switch (data.status) {
-          case "processing":
-            // handle creating and prepare Log
-            addOrder(data).then((result: boolean | string) =>
-              typeof result === "string"
-                ? ((description = result), (type = "error"))
-                : (description = "Order Deleted")
-            );
-            break;
-          case "completed":
-            // handle completing and prepare Log
-            completeOrder(data).then((result: boolean | string) =>
-              typeof result === "string"
-                ? ((description = result), (type = "error"))
-                : (description = "Order Deleted")
-            );
-            break;
-          case "cancelled":
-            // handle deleting and prepare Log
-            cancelOrder(data).then((result: boolean | string) =>
-              typeof result === "string"
-                ? ((description = result), (type = "error"))
-                : (description = "Order Deleted")
-            );
-            break;
-          default:
-            description = `no suth method ${data.status}`;
-            type = "error";
-            break;
-        }
-      })
-      .catch((error) => {
-        description = `error, ${error.message || ""}`;
-        type = "error";
-      })
-      .finally(() =>
-        createLog({
-          id: v4(),
-          type: type,
-          desc: description,
-          userUid: "webHook",
-          orders: [orderId],
-          timeStamp: new Date(),
-        })
-      );
+    try {
+      const rawBody = await getRawBody(req);
+      const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
+      orderId = data.id.toString();
+      switch (data.status) {
+        case "processing":
+          // handle creating and prepare Log
+          addOrder(data).then((result: boolean | string) =>
+            typeof result === "string"
+              ? ((description = result), (type = "error"))
+              : (description = "Order Deleted")
+          );
+          break;
+        case "completed":
+          // handle completing and prepare Log
+          completeOrder(data).then((result: boolean | string) =>
+            typeof result === "string"
+              ? ((description = result), (type = "error"))
+              : (description = "Order Deleted")
+          );
+          break;
+        case "cancelled":
+          // handle deleting and prepare Log
+          cancelOrder(data).then((result: boolean | string) =>
+            typeof result === "string"
+              ? ((description = result), (type = "error"))
+              : (description = "Order Deleted")
+          );
+          break;
+        default:
+          description = `no suth method ${data.status}`;
+          type = "error";
+          break;
+      }
+    } catch (error: any) {
+      description = `error, ${error.message || ""}`;
+      type = "error";
+    } finally {
+      createLog({
+        id: v4(),
+        type: type,
+        desc: description,
+        userUid: "webHook",
+        orders: [orderId],
+        timeStamp: new Date(),
+      });
+    }
   }
   res.status(200);
   res.end();
