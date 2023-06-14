@@ -17,6 +17,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     let description: string = "";
     let type: "log" | "error" = "log";
     let orderId: string = "not_figured";
+    let result;
     try {
       const rawBody = await getRawBody(req);
       const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
@@ -24,27 +25,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       switch (data.status) {
         case "processing":
           // handle creating and prepare Log
-          addOrder(data).then((result: boolean | string) =>
-            typeof result === "string"
-              ? ((description = result), (type = "error"))
-              : (description = "Order Deleted")
-          );
+          result = await addOrder(data);
+          typeof result === "string"
+            ? ((description = result), (type = "error"))
+            : (description = "Order processing");
+
           break;
         case "completed":
           // handle completing and prepare Log
-          completeOrder(data).then((result: boolean | string) =>
-            typeof result === "string"
-              ? ((description = result), (type = "error"))
-              : (description = "Order Deleted")
-          );
+          result = await completeOrder(data);
+          typeof result === "string"
+            ? ((description = result), (type = "error"))
+            : (description = "Order Completed");
+
           break;
         case "cancelled":
           // handle deleting and prepare Log
-          cancelOrder(data).then((result: boolean | string) =>
-            typeof result === "string"
-              ? ((description = result), (type = "error"))
-              : (description = "Order Deleted")
-          );
+          result = await cancelOrder(data);
+          typeof result === "string"
+            ? ((description = result), (type = "error"))
+            : (description = "Order cancelled");
+
           break;
         default:
           description = `no suth method ${data.status}`;
