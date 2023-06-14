@@ -25,20 +25,9 @@ export async function createOrder(userUid: string, order: IOrder) {
       ...order,
       id: docRef.id,
     });
-    return docRef.id;
-  } catch (error) {
-    console.error("Error adding Order: ", error);
-    await createLog({
-      id: v4(),
-      type: "error",
-      desc: "Error adding Order",
-      userUid: userUid,
-      orders: [order.id],
-      timeStamp: new Date(),
-      relatedConsumables: order.products,
-      relatedProducts: order.consumables,
-    });
-    return false;
+    return true;
+  } catch (error: any) {
+    return `Error adding Order, ${error.message.toString() || ""}`;
   }
 }
 
@@ -72,30 +61,19 @@ export async function deleteOrder(userUid: string, orderId: string) {
   try {
     const docRef = doc(ordersCollection, orderId);
     await deleteDoc(docRef);
-
     console.log("Order Deleted:", docRef.id);
-    await createLog({
-      id: v4(),
-      type: "log",
-      desc: "Order Deleted",
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
+    // await createLog({
+    //   id: v4(),
+    //   type: "log",
+    //   desc: "Order Deleted",
+    //   userUid: userUid,
+    //   orders: [],
+    //   timeStamp: new Date(),
+    //   relatedConsumables: [],
+    //   relatedProducts: [],
+    // });
     return true;
   } catch (error) {
-    await createLog({
-      id: v4(),
-      type: "error",
-      desc: `Error deleting Order, ${orderId}`,
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
-    return false;
+    return `Error deleting Order, ${orderId}`;
   }
 }

@@ -57,7 +57,7 @@ export async function addOrder(data: any) {
       if (!product) {
         console.log("not found", item);
         orderProducts.push(`${item.product_id}, not found`);
-        return;
+        // return "";
       } else {
         for (let i = 0; i < item.quantity; i++) {
           if (!product.isBundle) {
@@ -84,24 +84,15 @@ export async function addOrder(data: any) {
     }
     console.log("orderProducts", orderProducts);
 
-    await createOrder("webHook", {
+    const orderCreation = await createOrder("webHook", {
       products: orderProducts,
       date: orderDate,
       consumables: orderConsumables,
       id: data.id.toString(),
     });
-    console.log("order done ");
-  } catch (error) {
-    createLog({
-      id: v4(),
-      type: "error",
-      desc: `Error addingOrder, ${error}`,
-      userUid: "webhook",
-      orders: [data.id.toString()],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
+    return orderCreation;
+  } catch (error: any) {
+    return `Error adding Order, ${error.message.toString() || ""}`;
   }
 }
 
@@ -146,47 +137,12 @@ export async function completeOrder(data: any) {
     }
     console.log("products and consumables reduced");
     await deleteOrder("webhook", order.id);
-
-    createLog({
-      id: v4(),
-      type: "log",
-      desc: `Order completed & removed ${order.id}`,
-      userUid: "webhook",
-      orders: [data.id.toString() || "noId"],
-      timeStamp: new Date(),
-      relatedConsumables: orderConsumables,
-      relatedProducts: orderProducts,
-    });
+    return true;
   } catch (error: any) {
-    createLog({
-      id: v4(),
-      type: "error",
-      desc: `Error completing Order, ${error.message.toString() || ""}`,
-      userUid: "webhook",
-      orders: [data.id.toString() || "noId"],
-      timeStamp: new Date(),
-      relatedConsumables: [],
-      relatedProducts: [],
-    });
-    return false;
+    return `Error completing Order, ${error.message.toString() || ""}`;
   }
 }
 
 export async function cancelOrder(data: any) {
   return deleteOrder("webhook", data.id.toString());
-  // try {
-  //   await deleteOrder("webhook", data.id.toString());
-  // } catch (error) {
-  //   createLog({
-  //     id: v4(),
-  //     type: "error",
-  //     desc: `Error canceling Order`,
-  //     userUid: "webhook",
-  //     orders: [data.id.toString() || "noId"],
-  //     timeStamp: new Date(),
-  //     relatedConsumables: [],
-  //     relatedProducts: [],
-  //   });
-  //   return false;
-  // }
 }
