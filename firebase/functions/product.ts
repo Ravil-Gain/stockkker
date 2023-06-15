@@ -65,6 +65,10 @@ export async function getProducts() {
   });
 }
 
+export function getProductsSnapshot() {
+  return query(productsCollection)
+}
+
 export async function changeShelfProductAmounts(
   id: string,
   amount: number,

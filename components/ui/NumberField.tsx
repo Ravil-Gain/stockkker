@@ -9,12 +9,22 @@ export interface IAppProps {
   setValue: any;
   endAdornment?: string;
   disabled?: boolean;
+  sx?: any;
 }
 
 export function NumberField(props: IAppProps) {
-  const { required = false, value, setValue, label, endAdornment, disabled } = props;
+  const {
+    required = false,
+    value,
+    setValue,
+    label,
+    endAdornment,
+    disabled,
+    sx,
+  } = props;
   return (
     <TextField
+      sx={sx}
       required={required}
       id="outlined-basic"
       label={label}
@@ -31,7 +41,9 @@ export function NumberField(props: IAppProps) {
         }
       }}
       InputProps={{
-        endAdornment: <InputAdornment position="start">{endAdornment || ''}</InputAdornment>,
+        endAdornment: (
+          <InputAdornment position="start">{endAdornment || ""}</InputAdornment>
+        ),
       }}
     />
   );

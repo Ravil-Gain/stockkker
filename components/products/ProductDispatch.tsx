@@ -27,7 +27,7 @@ export function ProductDispatch(props: IProductDispatch) {
     try {
       const result = await dispatchProduct(product.id, userUid);
       if (result) {
-        router.reload();
+        closeFn();
       }
     } catch (error) {
       console.log(error);

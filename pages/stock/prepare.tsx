@@ -12,57 +12,60 @@ import { ShelfStatusBar } from "@/components/ShelfStatus";
 import { ProductDispatch } from "@/components/products/ProductDispatch";
 import { IProduct } from "@/firebase/firestore/product";
 import { getOrdersSnapshot } from "@/firebase/functions/orders";
-import { getProducts } from "@/firebase/functions/product";
+import { getProductsSnapshot } from "@/firebase/functions/product";
 import { orderReducer } from "@/woocommerce/util";
 import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FiPackage } from "react-icons/fi";
-interface IRaportProduct extends IProduct {
+import { ProductDeclaration } from "@/components/products/ProductDeclaration";
+interface IProductStatus extends IProduct {
   onHold: number;
 }
 
 export default function Prepare() {
   const [isLoading, setLoading] = useState(true);
-  const [products, setProducts] = useState<IRaportProduct[]>([]);
+  const [productsData, setProductsData] = useState<IProduct[]>([]);
+  const [products, setProducts] = useState<IProductStatus[]>([]);
   const [dispatchProduct, setDispatchProduct] = useState<IProduct | null>(null);
 
   useEffect(() => {
-    console.log("update");
-    getProducts().then((products) => {
-      getOrdersSnapshot().then((q) => {
-        const unsubscribe = onSnapshot(
-          q,
-          (snap) => {
-            const arrayProds: string[] = [];
-            const orders = snap.docs.map((doc) => ({
-              ...doc.data(),
-              id: doc.id,
-            }));
-            orders.map((d) => {
-              d.products.map((prod) => arrayProds.push(prod));
-            });
-            const reduced = arrayProds.reduce(orderReducer, {});
-            console.log(reduced);
-
-            //@ts-ignore
-            const prods: IRaportProduct = products
-              .map((p: IProduct) => ({
-                onHold: reduced[p.id] || 0,
-                ...p,
-              }))
-              .sort((p1, p2) => p2.onHold - p1.onHold);
-
-            //@ts-ignore
-            setProducts(prods);
-            setLoading(false);
-          },
-          (error) => console.log(error.message)
-        );
-        return () => unsubscribe();
-      });
+    const q = getProductsSnapshot();
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const prods = snap.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+      setProductsData(prods);
     });
+
+    return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    console.log("update");
+    getOrdersSnapshot().then((q) => {
+      const unsubscribe = onSnapshot(
+        q,
+        (snap) => {
+          const arrayProds: string[] = [];
+          const orders = snap.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }));
+          orders.map((d) => d.products.map((prod) => arrayProds.push(prod)));
+          const reduced = arrayProds.reduce(orderReducer, {});
+
+          const prods: IProductStatus[] = productsData
+            .map((p: IProduct) => ({
+              onHold: reduced[p.id] || 0,
+              ...p,
+            }))
+            .sort((p1, p2) => p2.onHold - p1.onHold);
+          setProducts(prods);
+          setLoading(false);
+        },
+        (error) => console.log(error.message)
+      );
+      return () => unsubscribe();
+    });
+  }, [productsData]);
   return (
     <>
       {dispatchProduct !== null && (
@@ -75,7 +78,10 @@ export default function Prepare() {
         <p>Loading</p>
       ) : (
         <TableContainer component={Paper}>
-          <Table size={'small'} sx={{ minWidth: 250 }}>
+          <div className="w-full h-20 flex flex-row">
+            <ProductDeclaration stockProducts={productsData}/>
+          </div>
+          <Table size={"small"} sx={{ minWidth: 250 }}>
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
@@ -85,9 +91,15 @@ export default function Prepare() {
                 >
                   Status
                 </TableCell>
-                <TableCell align="center" sx={{ maxWidth: 30 }}>onHold</TableCell>
-                <TableCell align="center" sx={{ maxWidth: 30 }}>onShelf</TableCell>
-                <TableCell align="right" sx={{ maxWidth: 30 }}>Dispatch</TableCell>
+                <TableCell align="center" sx={{ maxWidth: 30 }}>
+                  onHold
+                </TableCell>
+                <TableCell align="center" sx={{ maxWidth: 30 }}>
+                  onShelf
+                </TableCell>
+                <TableCell align="right" sx={{ maxWidth: 30 }}>
+                  Dispatch
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -95,11 +107,11 @@ export default function Prepare() {
                 .filter((p) => !p.isBundle)
                 .map((row) => (
                   <TableRow
-                  hover
+                    hover
                     key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell sx={{ maxWidth: 50 }} >
+                    <TableCell sx={{ maxWidth: 50 }}>
                       <div className="flex items-center justify-start cursor-pointer">
                         {row.name}
                       </div>
@@ -112,7 +124,7 @@ export default function Prepare() {
                       <ShelfStatusBar
                         onHold={row.onHold}
                         onShelf={row.packagesOnShelf}
-                        maxValue={row.boxSize/row.packageSize}
+                        maxValue={row.boxSize / row.packageSize}
                       />
                     </TableCell>
                     <TableCell align="center" sx={{ maxWidth: 30 }}>
@@ -124,7 +136,7 @@ export default function Prepare() {
                     <TableCell align="right" sx={{ maxWidth: 30 }}>
                       <Button onClick={() => setDispatchProduct(row)}>
                         <FiPackage />
-                      {row.boxesOnStock}
+                        {row.boxesOnStock}
                       </Button>
                     </TableCell>
                   </TableRow>
