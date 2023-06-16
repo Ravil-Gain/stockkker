@@ -56,6 +56,45 @@ export async function createProduct(userUid: string, product: IProduct) {
   }
 }
 
+export async function editProduct(userUid: string, product: IProduct) {
+  try {
+    const docRef = doc(productsCollection, product.id);
+
+    const prod = (await getDoc(docRef)).data();
+    if (!prod) throw new Error("No Product");
+
+    const result = await updateDoc(docRef, {
+      packageSize: product.packageSize,
+      packagesOnShelf: product.packagesOnShelf,
+      boxSize: product.boxSize,
+      boxesOnStock: product.boxesOnStock,
+    });
+    await createLog({
+      id: v4(),
+      type: "log",
+      desc: "Product Updated",
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [docRef.id],
+    });
+    return result;
+  } catch (error) {
+    await createLog({
+      id: v4(),
+      type: "error",
+      desc: "Error Product Updating",
+      userUid: userUid,
+      orders: [],
+      timeStamp: new Date(),
+      relatedConsumables: [],
+      relatedProducts: [product.id],
+    });
+    return false;
+  }
+}
+
 export async function getProducts() {
   const lists = query(productsCollection, where("active", "==", true));
   // get the products
@@ -66,7 +105,7 @@ export async function getProducts() {
 }
 
 export function getProductsSnapshot() {
-  return query(productsCollection)
+  return query(productsCollection);
 }
 
 export async function changeShelfProductAmounts(

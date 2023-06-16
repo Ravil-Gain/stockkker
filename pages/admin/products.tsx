@@ -2,6 +2,7 @@ import { EditProduct } from "@/components/products/EditProduct";
 import { ProductDispatch } from "@/components/products/ProductDispatch";
 import ProductsForm from "@/components/products/ProductsForm";
 import { Loading } from "@/components/ui/Loading";
+import { useAuth } from "@/context/authContext";
 import { IConsumable } from "@/firebase/firestore/consumable";
 import { IProduct } from "@/firebase/firestore/product";
 import { IWooProduct } from "@/firebase/firestore/wooProduct";
@@ -24,6 +25,9 @@ import { useEffect, useState } from "react";
 import { FiBox, FiPackage } from "react-icons/fi";
 
 export default function Products() {
+  const user = useAuth();
+  const userUid: string = user.authUser?.uid || "";
+
   const [products, setProducts] = useState<IProduct[]>([]);
   const [wooProducts, setWooProducts] = useState<IWooProduct[]>([]);
   const [consumable, setConsumables] = useState<IConsumable[]>([]);
@@ -84,8 +88,9 @@ export default function Products() {
           products={products}
         />
       </div>
-      {editProduct !== null && (
+      {editProduct !== null && userUid !== '' && (
         <EditProduct
+          userId={userUid}
           product={editProduct}
           closeFn={() => setEditProduct(null)}
         />
