@@ -1,6 +1,6 @@
 export interface IOrder {
   id: string;
-  date: Date;
+  date: any;
   products: string[];
   consumables: string[];
 }

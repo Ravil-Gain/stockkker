@@ -17,6 +17,7 @@ import { FiMinus, FiPlus, FiXCircle } from "react-icons/fi";
 import { createRaport } from "@/firebase/functions/raports";
 import { v4 } from "uuid";
 import { useAuth } from "@/context/authContext";
+import { changeShelfProductAmounts } from "@/firebase/functions/product";
 
 interface IProductDeclarationProps {
   stockProducts: IProduct[];
@@ -57,12 +58,19 @@ export function ProductDeclaration(props: IProductDeclarationProps) {
     setProdsToChange([]);
   };
   const saveRaport = async () => {
-    await createRaport({
-      id: v4(),
-      userId: userUid,
-      date: new Date(),
-      description: description,
-      raportSubjects: prodsToChange,
+    const promiseArray = prodsToChange.map((prod) => {
+      if (prod.type === "product") {
+        return changeShelfProductAmounts(prod.id, prod.amount, userUid);
+      }
+    });
+    await Promise.all(promiseArray).then(async (data) => {
+      await createRaport({
+        id: v4(),
+        userId: userUid,
+        date: new Date(),
+        description: description,
+        raportSubjects: prodsToChange,
+      });
     });
     closeDialog();
   };
@@ -70,7 +78,6 @@ export function ProductDeclaration(props: IProductDeclarationProps) {
     <>
       <LoadingButton
         variant="contained"
-        color="success"
         loading={isLoading}
         onClick={() => setShowModal(true)}
       >

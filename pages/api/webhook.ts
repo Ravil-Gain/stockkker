@@ -17,11 +17,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     let description: string = "";
     let type: "log" | "error" = "log";
     let orderId: string = "not_figured";
-    let result;
+    let result, status;
     try {
       const rawBody = await getRawBody(req);
       const data = JSON.parse(Buffer.from(rawBody).toString("utf8"));
       orderId = data.id.toString();
+      status = data.status;
       switch (data.status) {
         case "processing":
           // handle creating and prepare Log
@@ -48,14 +49,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
           break;
         default:
-          description = `no suth method ${data.status}`;
-          type = "error";
+          status = 'unhandled';
           break;
       }
     } catch (error: any) {
       description = `error, ${error.message || ""}`;
       type = "error";
     } finally {
+      if (status === "unhandled") return; // to avoid writing extra logs
       createLog({
         id: v4(),
         type: type,

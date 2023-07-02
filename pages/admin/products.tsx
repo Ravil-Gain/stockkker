@@ -88,7 +88,7 @@ export default function Products() {
           products={products}
         />
       </div>
-      {editProduct !== null && userUid !== '' && (
+      {editProduct !== null && userUid !== "" && (
         <EditProduct
           userId={userUid}
           product={editProduct}
@@ -191,12 +191,7 @@ export default function Products() {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          <span
-                            className="cursor-pointer"
-                            onClick={() => setEditProduct(row)}
-                          >
-                            {row.name}
-                          </span>
+                          {row.name}
                         </TableCell>
                         <TableCell align="center">{row.wooId}</TableCell>
 

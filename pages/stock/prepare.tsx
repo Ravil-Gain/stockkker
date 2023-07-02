@@ -7,6 +7,8 @@ import {
   TableCell,
   TableBody,
   Button,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import { ShelfStatusBar } from "@/components/ShelfStatus";
 import { ProductDispatch } from "@/components/products/ProductDispatch";
@@ -18,6 +20,7 @@ import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { FiPackage } from "react-icons/fi";
 import { ProductDeclaration } from "@/components/products/ProductDeclaration";
+import { IOrder } from "@/firebase/firestore/order";
 interface IProductStatus extends IProduct {
   onHold: number;
 }
@@ -25,8 +28,10 @@ interface IProductStatus extends IProduct {
 export default function Prepare() {
   const [isLoading, setLoading] = useState(true);
   const [productsData, setProductsData] = useState<IProduct[]>([]);
-  const [products, setProducts] = useState<IProductStatus[]>([]);
+  // const [products, setProducts] = useState<IProductStatus[]>([]);
+  const [orders, setOrders] = useState<IOrder[]>([]);
   const [dispatchProduct, setDispatchProduct] = useState<IProduct | null>(null);
+  const [allOrders, setAllOrders] = useState(false);
 
   useEffect(() => {
     const q = getProductsSnapshot();
@@ -34,7 +39,6 @@ export default function Prepare() {
       const prods = snap.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setProductsData(prods);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -44,21 +48,12 @@ export default function Prepare() {
       const unsubscribe = onSnapshot(
         q,
         (snap) => {
-          const arrayProds: string[] = [];
           const orders = snap.docs.map((doc) => ({
             ...doc.data(),
+            date: new Date(doc.data().date.toDate().toDateString()),
             id: doc.id,
           }));
-          orders.map((d) => d.products.map((prod) => arrayProds.push(prod)));
-          const reduced = arrayProds.reduce(orderReducer, {});
-
-          const prods: IProductStatus[] = productsData
-            .map((p: IProduct) => ({
-              onHold: reduced[p.id] || 0,
-              ...p,
-            }))
-            .sort((p1, p2) => p2.onHold - p1.onHold);
-          setProducts(prods);
+          setOrders(orders);
           setLoading(false);
         },
         (error) => console.log(error.message)
@@ -66,6 +61,27 @@ export default function Prepare() {
       return () => unsubscribe();
     });
   }, [productsData]);
+
+  const arrayProds: string[] = [];
+  const usedDate = new Date(Date.now() - 864e5);
+  orders
+    .filter((o) => {
+      if (allOrders) {
+        return true;
+      } else {
+        return new Date(o.date) <= usedDate;
+      }
+    })
+    .map((d) => d.products.map((prod) => arrayProds.push(prod)));
+
+  const reduced = arrayProds.reduce(orderReducer, {});
+  const shownProducts: IProductStatus[] = productsData
+    .map((p: IProduct) => ({
+      onHold: reduced[p.id] || 0,
+      ...p,
+    }))
+    .sort((p1, p2) => p2.onHold - p1.onHold);
+
   return (
     <>
       {dispatchProduct !== null && (
@@ -78,12 +94,25 @@ export default function Prepare() {
         <p>Loading</p>
       ) : (
         <TableContainer component={Paper}>
-          <div className="w-full h-20 flex flex-row">
-            <ProductDeclaration stockProducts={productsData}/>
+          <div className="h-10 flex flex-row m-4 justify-between">
+            <div>
+              <FormControlLabel
+                control={
+                  <Switch
+                    value={allOrders}
+                    color="primary"
+                    onChange={(event) => setAllOrders(event.target.checked)}
+                  />
+                }
+                label="All Days"
+                labelPlacement="start"
+              />
+            </div>
+            <ProductDeclaration stockProducts={productsData} />
           </div>
           <Table size={"small"} sx={{ minWidth: 250 }}>
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ backgroundColor: "#dbdbdb" }}>
                 <TableCell>Name</TableCell>
                 <TableCell
                   align="center"
@@ -103,7 +132,7 @@ export default function Prepare() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {products
+              {shownProducts
                 .filter((p) => !p.isBundle)
                 .map((row) => (
                   <TableRow
@@ -112,7 +141,7 @@ export default function Prepare() {
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell sx={{ maxWidth: 50 }}>
-                      <div className="flex items-center justify-start cursor-pointer">
+                      <div className="flex items-center justify-start">
                         {row.name}
                       </div>
                     </TableCell>
