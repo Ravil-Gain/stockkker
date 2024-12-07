@@ -11,12 +11,15 @@ export function Header() {
 
   return (
     <div className="fixed bg-white top-0 w-full h-16 left-0 flex items-center justify-between px-6 text-slate-900 md:mx-auto md:text-2xl z-10">
-      <h1 className="cursor-default hidden md:block uppercase font-bold">Stockkker</h1>
-      {user && user.authUser && (
+      <h1 className="cursor-default hidden md:block uppercase font-bold">BarBuh</h1>
+      {user && user.authUser && user.authUser && (
        <div className="w-3/4 md:w-1/2 flex justify-evenly">
-        <Link className={pathname === '/stock/prepare' ? 'font-bold' : 'no-underline'} href={'/stock/prepare/'} key={'Dashboard'}>Dashboard</Link>
-        <Link className={pathname === '/admin/products' ? 'font-bold' : 'no-underline'} href={'/admin/products'} key={'products'}>Products</Link>
-        <Link className={pathname === '/admin/consumables' ? 'font-bold' : 'no-underline'} href={'/admin/consumables'} key={'consumables'}>Consumables</Link>
+        {user.authUser.admin && (<Link className={pathname === '/barthender/' ? 'font-bold' : 'no-underline'} href={'/barthender/'} key={'orders'}>Orders</Link>)}
+        {user.authUser.admin && (<Link className={pathname === '/barthender/checks' ? 'font-bold' : 'no-underline'} href={'/barthender/checks'} key={'checks'}>Checks</Link>)}
+        {user.authUser.admin && (<Link className={pathname === '/barthender/cocktails' ? 'font-bold' : 'no-underline'} href={'/barthender/cocktails/'} key={'cocktails'}>Cocktails</Link>)}
+        {user.authUser.admin && (<Link className={pathname === '/barthender/products' ? 'font-bold' : 'no-underline'} href={'/barthender/products'} key={'products'}>Products</Link>)}
+        {!user.authUser.admin && (<Link className={pathname === '/client/' ? 'font-bold' : 'no-underline'} href={'/client/'} key={'menu'}>Menu</Link>)}
+        {!user.authUser.admin && (<Link className={pathname === '/client/check' ? 'font-bold' : 'no-underline'} href={'/client/check/'} key={'check'}>Check</Link>)}
        </div>
       )}
       {user && user.authUser ? (

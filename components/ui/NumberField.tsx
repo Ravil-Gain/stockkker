@@ -24,6 +24,7 @@ export function NumberField(props: IAppProps) {
   } = props;
   return (
     <TextField
+    type="number"
       sx={sx}
       required={required}
       id="outlined-basic"
@@ -35,11 +36,11 @@ export function NumberField(props: IAppProps) {
         const numberValue: number = Number(e.target.value);
         setValue(numberValue);
       }}
-      onKeyPress={(event) => {
-        if (!/[0-9]/.test(event.key)) {
-          event.preventDefault();
-        }
-      }}
+      // onKeyPress={(event) => {
+      //   if (!/[0-9]/.test(event.key)) {
+      //     event.preventDefault();
+      //   }
+      // }}
       InputProps={{
         endAdornment: (
           <InputAdornment position="start">{endAdornment || ""}</InputAdornment>

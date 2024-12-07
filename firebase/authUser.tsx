@@ -2,19 +2,21 @@ import { UserInfo } from '@firebase/auth';
 import { useState, useEffect } from 'react'
 import { auth } from './config';
 
-
 export interface AuthUserState {
   uid: string | null,
+  photoURL: string | null,
   displayName: string | null,
-  email: string | null
+  email: string | null,
+  admin: boolean
 }
 
 const formatAuthUser = (user: UserInfo): AuthUserState => ({
   displayName: user.displayName,
+  photoURL: user.photoURL,
   uid: user.uid,
-  email: user.email
+  email: user.email,
+  admin: user.email === 'tesastep@gmail.com' || false
 });
-
 
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState<AuthUserState | null>(null);

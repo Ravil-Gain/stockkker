@@ -27,7 +27,19 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+# Project description
+
+This app keeps track on warehouse state of products and consumables, 
+
+## /stock/prepare
+
+
+## /admin/products
+
+## /admin/consumables
+Table of warehoue consumables. 
+onHold shows how many required items currently ordered. It reduces
+
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 

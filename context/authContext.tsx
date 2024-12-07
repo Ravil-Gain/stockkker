@@ -11,7 +11,9 @@ const initial: AuthState = {
   authUser: {
     uid: null,
     displayName: null,
-    email: null
+    email: null,
+    photoURL: null,
+    admin: false
   },
   loading: true,
   signOut: async () => { }
