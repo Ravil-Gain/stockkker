@@ -1,4 +1,6 @@
 import CustomerCheck from "@/components/checks/CustomerCheck";
+import { Loading } from "@/components/ui/Loading";
+import { useAuth } from "@/context/authContext";
 import { ICocktail } from "@/firebase/firestore/cocktail";
 import { IOrder } from "@/firebase/firestore/order";
 import { getCocktails } from "@/firebase/functions/cocktails";
@@ -10,6 +12,7 @@ export default function Order() {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [cocktails, setCocktails] = useState<ICocktail[]>([]);
   const [isLoading, setLoading] = useState(false);
+  // const user = useAuth();
 
   useEffect(() => {
     Promise.all([
@@ -34,6 +37,7 @@ export default function Order() {
     ]).finally(() => setLoading(false));
   }, []);
 
+  if (isLoading) return <Loading></Loading>;
   return (
     <div>
       {orders.map((order) => (

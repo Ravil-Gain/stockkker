@@ -3,14 +3,14 @@ import { AuthUserState } from "@/firebase/authUser";
 import { ICocktail } from "@/firebase/firestore/cocktail";
 import { IOrderElement, orderStatus } from "@/firebase/firestore/order";
 import { getCocktail, orderCocktail } from "@/firebase/functions/orders";
-import { Card, CardContent } from "@mui/material";
+import { Card, CardContent, Grid } from "@mui/material";
 import { v4 } from "uuid";
 
 interface IMenuItem {
   cocktail: ICocktail;
   status: orderStatus;
   orderId: string | undefined;
-  price:number;
+  price: number;
 }
 
 export default function MenuItem(props: IMenuItem) {
@@ -35,7 +35,6 @@ export default function MenuItem(props: IMenuItem) {
       break;
   }
 
-
   const orderDrink = (user: AuthUserState, cocktail: ICocktail) => {
     const orderItem: IOrderElement = {
       id: v4(),
@@ -46,21 +45,28 @@ export default function MenuItem(props: IMenuItem) {
     orderCocktail(user, orderId, orderItem);
   };
 
-  const getDrink =(cocktail: ICocktail)=>{
-    getCocktail(orderId, cocktail)
-  }
+  const getDrink = (cocktail: ICocktail) => {
+    getCocktail(orderId, cocktail);
+  };
 
-  const onClick =(cocktail:ICocktail)=>{
+  const onClick = (cocktail: ICocktail) => {
     if (!user.authUser?.uid) return;
-    if (status === 'order') console.log('ordered');
-    if (status === 'done') orderDrink(user.authUser, cocktail);
-    if (status === 'ready') getDrink(cocktail);
-  }
+    if (status === "order") console.log("ordered");
+    if (status === "done") orderDrink(user.authUser, cocktail);
+    if (status === "ready") getDrink(cocktail);
+  };
 
   return (
-    <Card sx={{ minWidth: 275, my: "8px", backgroundColor }}>
+    <Card sx={{ my: "8px", backgroundColor }}>
       <CardContent onClick={() => onClick(cocktail)}>
-        {cocktail.name} {price}
+        <Grid container spacing={2}>
+          <Grid item xs={10}>
+            {cocktail.name}
+          </Grid>
+          <Grid item xs={2}>
+            {price}€
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   );

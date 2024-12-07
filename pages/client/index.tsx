@@ -1,14 +1,12 @@
 import MenuItem from "@/components/menu/menuItem";
+import { Loading } from "@/components/ui/Loading";
 import { useAuth } from "@/context/authContext";
 import { ICocktail } from "@/firebase/firestore/cocktail";
 import { IOrder, orderStatus } from "@/firebase/firestore/order";
 import { IProduct } from "@/firebase/firestore/product";
-import {
-  getCocktails,
-  getCocktailsSnapshot,
-} from "@/firebase/functions/cocktails";
+import { getCocktailsSnapshot } from "@/firebase/functions/cocktails";
 import { getOrdersSnapshot } from "@/firebase/functions/orders";
-import { getProducts, getProductsSnapshot } from "@/firebase/functions/product";
+import { getProductsSnapshot } from "@/firebase/functions/product";
 import { calculatePrice } from "@/utils";
 import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -17,8 +15,7 @@ export default function Menu() {
   const [cocktails, setCocktails] = useState<ICocktail[]>([]);
   const [order, setOrder] = useState<IOrder | null | undefined>();
   const [products, setProducts] = useState<IProduct[]>([]);
-
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(true);
 
   const user = useAuth();
   useEffect(() => {
@@ -49,13 +46,13 @@ export default function Menu() {
               ...doc.data(),
               id: doc.id,
             }));
-            setOrder(data[0]);
+            setOrder(data.find((d) => !d.end_date && d.customer.uid === user.authUser?.uid));
           },
           (error) => console.log(error.message)
         );
         return () => unsubscribe();
       }),
-      getProductsSnapshot().then((q)=>{
+      getProductsSnapshot().then((q) => {
         const unsubscribe = onSnapshot(
           q,
           (snap) => {
@@ -68,15 +65,15 @@ export default function Menu() {
           (error) => console.log(error.message)
         );
         return () => unsubscribe();
-      })
+      }),
     ]).finally(() => setLoading(false));
   }, [user]);
-
+  if (isLoading) return <Loading></Loading>;
   return (
     <div>
       <div>
         {cocktails.map((cocktail) => {
-          const price:number = calculatePrice(cocktail, products);
+          const price: number = calculatePrice(cocktail, products);
           const status: orderStatus =
             order?.cocktails.find(
               (c) => c.status !== "done" && c.cocktail === cocktail.id

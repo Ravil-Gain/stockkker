@@ -126,7 +126,7 @@ export default function CocktailForm(props: IProductsForm) {
             >
               {liquids.map((rc, i) => (
                 <Chip
-                  label={`  ${rc.amount}ml - ${products.find(p=>p.id ===rc.product)?.name}  `}
+                  label={`${rc.amount}ml - ${products.find(p=>p.id ===rc.product)?.name}  `}
                   key={i}
                   variant="outlined"
                   onDelete={() =>

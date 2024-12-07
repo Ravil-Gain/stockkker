@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Divider,
   IconButton,
   List,
   ListItem,
@@ -62,6 +63,41 @@ export default function CustomerCheck(props: IMenuItem) {
         />
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           {showInfo ? (
+            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+              {recievedCocktail.map((value) => {
+                const labelId = `checkbox-list-label-${value}`;
+                return (
+                  <ListItem
+                    key={value.id}
+                    secondaryAction={
+                      <IconButton edge="end" aria-label="comments">
+                        {value.price}
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      id={labelId}
+                      primary={
+                        cocktails.find((c) => c.id === value.cocktail)?.name
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
+              <Divider component="li" />
+
+              <ListItem
+                key={"tottal"}
+                secondaryAction={
+                  <IconButton edge="end" aria-label="comments">
+                    {Math.round(tottal * 100) / 100}
+                  </IconButton>
+                }
+              >
+                <ListItemText id={"tottal-Label"} primary={"Tottal"} />
+              </ListItem>
+            </List>
+          ) : (
             <CardContent sx={{ flex: "1 0 auto" }}>
               <Typography component="div" variant="h5">
                 {order.customer.displayName}
@@ -73,41 +109,6 @@ export default function CustomerCheck(props: IMenuItem) {
               >
                 {Math.round(tottal * 100) / 100} €
               </Typography>
-            </CardContent>
-          ) : (
-            <CardContent sx={{ flex: "1 0 auto" }}>
-              <List sx={{ width: "100%", bgcolor: "background.paper" }}>
-                {recievedCocktail.map((value) => {
-                  const labelId = `checkbox-list-label-${value}`;
-                  return (
-                    <ListItem
-                      key={value.id}
-                      secondaryAction={
-                        <IconButton edge="end" aria-label="comments">
-                          {value.price}
-                        </IconButton>
-                      }
-                    >
-                      <ListItemText
-                        id={labelId}
-                        primary={
-                          cocktails.find((c) => c.id === value.cocktail)?.name
-                        }
-                      />
-                    </ListItem>
-                  );
-                })}
-                <ListItem
-                  key={"tottal"}
-                  secondaryAction={
-                    <IconButton edge="end" aria-label="comments">
-                      {Math.round(tottal * 100) / 100}
-                    </IconButton>
-                  }
-                >
-                  <ListItemText id={"tottal-Label"} primary={"Tottal"} />
-                </ListItem>
-              </List>
             </CardContent>
           )}
           <CardActions>
