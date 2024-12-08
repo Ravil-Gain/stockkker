@@ -26,10 +26,10 @@ export function Header() {
           {user.authUser.admin && (
             <Link
               className={
-                pathname === "/barthender/" ? "font-bold" : "no-underline"
+                pathname === "/barthender" ? "font-bold" : "no-underline"
               }
               href={"/barthender/"}
-              key={"orders"}
+              key={"index"}
             >
               Orders
             </Link>
@@ -75,7 +75,7 @@ export function Header() {
           {!user.authUser.admin && (
             <Link
               className={pathname === "/client/" ? "font-bold" : "no-underline"}
-              href={"/client/"}
+              href={"/client"}
               key={"menu"}
             >
               Menu

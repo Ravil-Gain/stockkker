@@ -2,7 +2,7 @@ import CocktailsList from "@/components/cocktails/CocktailsList";
 import CocktailForm from "@/components/cocktails/CocktailForm";
 import { ICocktail } from "@/firebase/firestore/cocktail";
 import { IProduct } from "@/firebase/firestore/product";
-import { getCocktails, getCocktailsSnapshot } from "@/firebase/functions/cocktails";
+import { getCocktailsSnapshot } from "@/firebase/functions/cocktails";
 import { getProducts } from "@/firebase/functions/product";
 import { useEffect, useState } from "react";
 import { onSnapshot } from "firebase/firestore";
@@ -43,7 +43,6 @@ export default function Cocktails() {
           cocktails={cocktails}
         />
       </div>
-      <br />
       <CocktailsList cocktails={cocktails} products={products}></CocktailsList>
     </div>
   );
