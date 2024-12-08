@@ -53,7 +53,7 @@ export default function CustomerCheck(props: IMenuItem) {
       <Card
         sx={{
           display: "flex",
-          my:"8px"
+          my: "8px",
         }}
       >
         <CardMedia
@@ -62,31 +62,24 @@ export default function CustomerCheck(props: IMenuItem) {
           src={order.customer.photoURL || undefined}
           alt={order.customer.email || "User"}
         />
-        <Box sx={{ display: "flex", flexDirection: "column", width:"100%" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
           {showInfo ? (
-            <List sx={{ width: "100%", bgcolor: "background.paper" }} className="text-xl">
+            <List
+              sx={{ width: "100%", bgcolor: "background.paper" }}
+              className="text-sm"
+            >
               {recievedCocktail.map((value) => {
                 const labelId = `checkbox-list-label-${value}`;
                 return (
                   <ListItem
                     key={value.id}
-                    secondaryAction={
-                      <IconButton edge="end" aria-label="comments">
-                        {value.price}
-                      </IconButton>
-                    }
+                    secondaryAction={<> {value.price} </>}
                   >
-                    <ListItemText
-                      id={labelId}
-                      primary={
-                        cocktails.find((c) => c.id === value.cocktail)?.name
-                      }
-                    />
+                    {cocktails.find((c) => c.id === value.cocktail)?.name}
                   </ListItem>
                 );
               })}
               <Divider component="li" />
-
               <ListItem
                 key={"tottal"}
                 secondaryAction={
