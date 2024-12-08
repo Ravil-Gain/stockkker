@@ -8,33 +8,34 @@ import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function Order() {
+  const user = useAuth();
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [cocktails, setCocktails] = useState<ICocktail[]>([]);
-  const [isLoading, setLoading] = useState(false);
 
-//   useAuth();
   useEffect(() => {
-    Promise.all([
-        getOrdersSnapshot().then((q) => {
-        const unsubscribe = onSnapshot(
-            q,
-            (snap) => {
-                const data =snap.docs.map((doc) => ({
-                    ...doc.data(),
-                    id: doc.id,
-                }));
-                console.log(data);
-                setOrders(data);
-            },
-            (error) => console.log(error.message)
-          );
-          return () => unsubscribe();
-      }),
-      getCocktails().then((cocktails) => {
-        setCocktails(cocktails);
-      }),
-    ]).finally(() => setLoading(false));
-  }, []);
+    if(user.authUser && user.authUser.admin) {
+      Promise.all([
+          getOrdersSnapshot().then((q) => {
+          const unsubscribe = onSnapshot(
+              q,
+              (snap) => {
+                  const data =snap.docs.map((doc) => ({
+                      ...doc.data(),
+                      id: doc.id,
+                  }));
+                  console.log(data);
+                  setOrders(data);
+              },
+              (error) => console.log(error.message)
+            );
+            return () => unsubscribe();
+        }),
+        getCocktails().then((cocktails) => {
+          setCocktails(cocktails);
+        }),
+      ]);
+    }
+  }, [user]);
 
   return (
     <div>

@@ -4,26 +4,34 @@ import { ICocktail } from "@/firebase/firestore/cocktail";
 import { IOrder, IOrderElement } from "@/firebase/firestore/order";
 import { getCocktails } from "@/firebase/functions/cocktails";
 import { getMyOrder } from "@/firebase/functions/orders";
-import { Divider, IconButton, List, ListItem, ListItemText } from "@mui/material";
+import {
+  Divider,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 
 export default function Check() {
+  const user = useAuth();
   const [order, setOrder] = useState<IOrder>();
   const [cocktails, setCocktails] = useState<ICocktail[]>([]);
   const [isLoading, setLoading] = useState(true);
-  const user = useAuth();
 
   useEffect(() => {
-    if (!user.authUser?.uid) return;
-    Promise.all([
-      getMyOrder(user.authUser.uid).then((data) => {
-        setOrder(data);
-        console.log(data);
-      }),
-      getCocktails().then((cocktails) => {
-        setCocktails(cocktails);
-      }),
-    ]).finally(() => setLoading(false));
+    if (user.authUser) {
+      if (!user.authUser?.uid) return;
+      Promise.all([
+        getMyOrder(user.authUser.uid).then((data) => {
+          setOrder(data);
+          console.log(data);
+        }),
+        getCocktails().then((cocktails) => {
+          setCocktails(cocktails);
+        }),
+      ]).finally(() => setLoading(false));
+    }
   }, [user]);
 
   const recievedCocktails: IOrderElement[] =
