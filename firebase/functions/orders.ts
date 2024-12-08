@@ -56,8 +56,6 @@ export async function getCocktail(orderId: string|undefined, cocktail: ICocktail
       return false;
     }
     const coctailsArray = snap.data().cocktails;
-    console.log(coctailsArray, cocktail);
-    
     const currentCocktailIndex = coctailsArray.findIndex(
       (c) => c.cocktail === cocktail.id && c.status === 'ready'
     );

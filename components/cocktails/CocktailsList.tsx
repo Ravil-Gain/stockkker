@@ -14,6 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
+import { EditCocktail } from "./EditCocktailForm";
 
 interface ICocktailItem {
   cocktails: ICocktail[];
@@ -30,7 +31,6 @@ export default function CocktailsList(props: ICocktailItem) {
   const activate = (id: string) => {
     activateCocktail(id);
   };
-
   return (
     <div>
       {cocktails
@@ -58,12 +58,19 @@ export default function CocktailsList(props: ICocktailItem) {
                 </CardContent>
               ) : (
                 <CardContent>
-                  <Typography variant="h5" component="div">
-                    {cocktail.name}
-                  </Typography>
-                  <Typography variant="h5" component="div">
-                    {calculatePrice(cocktail, products)}€
-                  </Typography>
+                  <Grid container direction={"row"} spacing={2}>
+                    <Grid item xs={10}>
+                      <Typography variant="h5" component="div">
+                        {cocktail.name}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Typography component="div">
+                        {" "}
+                        {calculatePrice(cocktail, products)}€
+                      </Typography>
+                    </Grid>
+                  </Grid>
                 </CardContent>
               )}
               <CardActions>
@@ -76,6 +83,10 @@ export default function CocktailsList(props: ICocktailItem) {
                     Activate
                   </Button>
                 )}
+                <EditCocktail
+                  cocktail={cocktail}
+                  products={products}
+                ></EditCocktail>
               </CardActions>
             </Card>
           );

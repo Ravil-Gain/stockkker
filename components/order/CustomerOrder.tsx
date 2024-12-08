@@ -26,6 +26,7 @@ export default function CustomerOrder(props: IMenuItem) {
         <Card
           key={index}
           sx={{
+            my:"8px",
             display: "flex",
             backgroundColor: cocktail.status === "process" ? "#c2b5ff" : "",
           }}

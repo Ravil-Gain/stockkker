@@ -1,15 +1,27 @@
 import ProductsForm from "@/components/products/ProductsForm";
 import ProductsList from "@/components/products/ProductsList";
 import { IProduct } from "@/firebase/firestore/product";
-import { getProducts } from "@/firebase/functions/product";
+import { getProductsSnapshot } from "@/firebase/functions/product";
+import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 export default function Products() {
   const [products, setProducts] = useState<IProduct[]>([]);
 
   useEffect(() => {
-    getProducts().then((data) => {
-      setProducts(data);
+    getProductsSnapshot().then((q) => {
+      const unsubscribe = onSnapshot(
+        q,
+        (snap) => {
+          const data = snap.docs.map((doc) => ({
+            ...doc.data(),
+            id: doc.id,
+          }));
+          setProducts(data);
+        },
+        (error) => console.log(error.message)
+      );
+      return () => unsubscribe();
     });
   }, []);
   return (

@@ -1,8 +1,8 @@
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
-  increment,
   query,
   QueryDocumentSnapshot,
   setDoc,
@@ -26,27 +26,9 @@ export async function createCocktail(userUid: string, cocktail: ICocktail) {
       id: docRef.id,
     });
     console.log("cocktail written with ID: ", docRef.id);
-    await createLog({
-      id: v4(),
-      type: "log",
-      desc: "Created new Cocktail",
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedProducts: [],
-    });
     return docRef.id;
   } catch (e) {
     console.error("Error adding Cocktail: ", e);
-    await createLog({
-      id: v4(),
-      type: "error",
-      desc: "Error adding Cocktail",
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedProducts: [],
-    });
     return false;
   }
 }
@@ -107,6 +89,21 @@ export async function updateCocktail(
       timeStamp: new Date(),
       relatedProducts: [],
     });
+    return false;
+  }
+}
+export async function editCocktail(cocktail: ICocktail) {
+  try {
+    const docRef = doc(cocktailsCollection, cocktail.id);
+    const cockt = (await getDoc(docRef)).data();
+    if (!cockt) throw new Error("No Cocktail");
+
+    const result = await updateDoc(docRef, {
+      name: cocktail.name,
+      ingredients: cocktail.ingredients
+    });
+    return result;
+  } catch (error) {
     return false;
   }
 }

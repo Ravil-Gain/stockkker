@@ -52,39 +52,18 @@ export async function createProduct(userUid: string, product: IProduct) {
   }
 }
 
-export async function editProduct(userUid: string, product: IProduct) {
+export async function editProduct(product: IProduct) {
   try {
     const docRef = doc(productsCollection, product.id);
-
     const prod = (await getDoc(docRef)).data();
     if (!prod) throw new Error("No Product");
 
     const result = await updateDoc(docRef, {
-      // active: product.active,
-      imgUrl: product.imgUrl,
       name: product.name,
-      price: product.price
-    });
-    await createLog({
-      id: v4(),
-      type: "log",
-      desc: "Product Updated",
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedProducts: [docRef.id],
+      price: product.price,
     });
     return result;
   } catch (error) {
-    await createLog({
-      id: v4(),
-      type: "error",
-      desc: "Error Product Updating",
-      userUid: userUid,
-      orders: [],
-      timeStamp: new Date(),
-      relatedProducts: [product.id],
-    });
     return false;
   }
 }

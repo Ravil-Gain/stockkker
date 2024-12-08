@@ -53,6 +53,7 @@ export default function CustomerCheck(props: IMenuItem) {
       <Card
         sx={{
           display: "flex",
+          my:"8px"
         }}
       >
         <CardMedia
@@ -113,12 +114,12 @@ export default function CustomerCheck(props: IMenuItem) {
           )}
           <CardActions>
             {showInfo ? (
-              <Button size="small" onClick={() => setShowInfo(!showInfo)}>
-                Show Info
+              <Button size="small" onClick={() => setShowInfo(false)}>
+                Hide Info
               </Button>
             ) : (
-              <Button size="small" onClick={() => setShowInfo(!showInfo)}>
-                Hide Info
+              <Button size="small" onClick={() => setShowInfo(true)}>
+                Show Info
               </Button>
             )}
             <Button size="small" onClick={() => setOpen(true)}>

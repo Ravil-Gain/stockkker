@@ -1,5 +1,6 @@
 import { IProduct } from "@/firebase/firestore/product";
-import { Card, CardContent, Grid, Typography } from "@mui/material";
+import { Card, CardActions, CardContent, Grid, Typography } from "@mui/material";
+import { EditProduct } from "./EditProduct";
 
 interface IProductList {
   products: IProduct[];
@@ -14,16 +15,19 @@ export default function ProductsList(props: IProductList) {
           <Card key={index} sx={{ my: "8px" }}>
             <CardContent>
               <Grid container direction={"row"} spacing={2}>
-                <Grid item xs={16}>
+                <Grid item xs={10}>
                   <Typography variant="h5" component="div">
                     {product.name}
                   </Typography>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={2}>
                   <Typography component="div">{product.price}€/L</Typography>
                 </Grid>
               </Grid>
             </CardContent>
+            <CardActions>
+              <EditProduct product={product}></EditProduct>
+            </CardActions>
           </Card>
         );
       })}
