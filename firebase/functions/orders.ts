@@ -72,6 +72,31 @@ export async function getCocktail(orderId: string|undefined, cocktail: ICocktail
     await updateDoc(docRef, { cocktails:coctailsArray });
   } catch (error) {}
 }
+export async function cancelCocktail(orderId: string|undefined, cocktailId: string) {
+  try {
+    const snap = await getDoc(doc(ordersCollection, orderId));
+    if (!snap.exists()) {
+      console.log("No such order");
+      return false;
+    }
+    const coctailsArray = snap.data().cocktails;
+    const currentCocktailIndex = coctailsArray.findIndex(
+      (c) => c.cocktail === cocktailId && c.status === 'order'
+    );
+
+    if (currentCocktailIndex < 0) {
+      console.log("No such cocktail ordered or wrong status ", cocktailId);
+      return false;
+    }
+
+    // coctailsArray[currentCocktailIndex].status = 'done';
+    coctailsArray.splice(currentCocktailIndex, 1);
+
+    const docRef = doc(ordersCollection, orderId);
+
+    await updateDoc(docRef, { cocktails:coctailsArray });
+  } catch (error) {}
+}
 
 export async function changeOrderCocktailStatus(
   orderId: string,
