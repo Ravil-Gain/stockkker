@@ -5,7 +5,7 @@ export function calculatePrice(
   cocktail: ICocktail,
   products: IProduct[]
 ): number {
-  const tottal =
+  const total =
     cocktail.ingredients
       .map(
         (i) =>
@@ -13,5 +13,5 @@ export function calculatePrice(
           1000
       )
       .reduce((partialSum, a) => partialSum + a, 0) || 0;
-  return Math.round(tottal * 100) / 100;
+  return Math.round(total * 100) / 100;
 }

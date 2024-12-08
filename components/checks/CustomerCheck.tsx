@@ -37,7 +37,7 @@ export default function CustomerCheck(props: IMenuItem) {
       ["done", "ready", "process"].includes(c.status)
     ) || [];
 
-  const tottal: number =
+  const total: number =
     recievedCocktail
       .map((c) => c.price || 0)
       .reduce((partialSum, a) => partialSum + a, 0) || 0;
@@ -81,14 +81,14 @@ export default function CustomerCheck(props: IMenuItem) {
               })}
               <Divider component="li" />
               <ListItem
-                key={"tottal"}
+                key={"total"}
                 secondaryAction={
                   <IconButton edge="end" aria-label="comments">
-                    {Math.round(tottal * 100) / 100}
+                    {Math.round(total * 100) / 100}
                   </IconButton>
                 }
               >
-                <ListItemText id={"tottal-Label"} primary={"Tottal"} />
+                <ListItemText id={"total-Label"} primary={"total"} />
               </ListItem>
             </List>
           ) : (
@@ -101,7 +101,7 @@ export default function CustomerCheck(props: IMenuItem) {
                 component="div"
                 sx={{ color: "text.secondary" }}
               >
-                {Math.round(tottal * 100) / 100} €
+                {Math.round(total * 100) / 100} €
               </Typography>
             </CardContent>
           )}
