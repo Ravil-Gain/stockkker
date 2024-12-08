@@ -16,13 +16,9 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { v4 } from "uuid";
-import ClearIcon from "@mui/icons-material/Clear";
-import DeleteIcon from '@mui/icons-material/Delete';
+import { IoIosClose } from "react-icons/io";
+import { MdDeleteForever } from "react-icons/md";
 
-// import AlarmOnIcon from '@mui/icons-material/AlarmOn';
-// import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
-// import LocalBarIcon from '@mui/icons-material/LocalBar';
-// import ReceiptIcon from '@mui/icons-material/Receipt';
 
 interface IMenuItem {
   cocktail: ICocktail;
@@ -90,12 +86,12 @@ export default function MenuItem(props: IMenuItem) {
       <Card sx={{ my: "8px", backgroundColor }}>
         <CardContent onClick={() => onClick(cocktail)}>
           <Grid container spacing={2}>
-            <Grid item xs={10}>
+            <Grid item xs={10} sx={{ display: 'flex'}}  onClick={()=>status === "order" && setOpen(true) }>
               {status === "order" && (
-                <ClearIcon
-                onClick={()=>setOpen(true) }
-                  sx={{ m: "8px", height: "18px", width: "18px", pb:'2px' }}
-                ></ClearIcon>
+                <IoIosClose
+                // onClick={()=>setOpen(true) }
+                style={{ width:'25px', height:'25px'}}
+                ></IoIosClose>
               )}
               {cocktail.name}
             </Grid>
@@ -120,10 +116,10 @@ export default function MenuItem(props: IMenuItem) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={() => setOpen(false)}>
+          <Button onClick={() => setOpen(false)}>
             Close
           </Button>
-          <Button variant="outlined" color="error" startIcon={<DeleteIcon />}onClick={() => cancelOrder()}>
+          <Button variant="outlined" color="error" startIcon={<MdDeleteForever />}onClick={() => cancelOrder()}>
             Cancel Order
           </Button>
         </DialogActions>
