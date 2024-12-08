@@ -15,7 +15,7 @@ const formatAuthUser = (user: UserInfo): AuthUserState => ({
   photoURL: user.photoURL,
   uid: user.uid,
   email: user.email,
-  admin: user.email === 'tesastep@gmail.coms' || false
+  admin: user.email === 'tesastep@gmail.com' || false
 });
 
 export default function useFirebaseAuth() {

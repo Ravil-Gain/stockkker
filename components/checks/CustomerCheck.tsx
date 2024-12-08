@@ -62,9 +62,9 @@ export default function CustomerCheck(props: IMenuItem) {
           src={order.customer.photoURL || undefined}
           alt={order.customer.email || "User"}
         />
-        <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", width:"100%" }}>
           {showInfo ? (
-            <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+            <List sx={{ width: "100%", bgcolor: "background.paper" }} className="text-xl">
               {recievedCocktail.map((value) => {
                 const labelId = `checkbox-list-label-${value}`;
                 return (
